@@ -112,16 +112,23 @@ function manageClick(boardObj, caseIdx) {
       boardObj.caseSelect = caseIdx;
     } else if ((piece > 0) === boardObj.turn & casesContour[caseSelect].includes(caseIdx) & canPieceGo(boardObj.pieces, piece, caseIdx)) {
       casesUpdate.push(caseSelect);
-      boardObj.pieces[caseSelect] = 0;
-      boardObj.pieces[caseIdx] = piece;
-      boardObj.caseSelect = null;
-      boardObj.turn = !boardObj.turn;
+      movePiece(boardObj, piece, caseSelect, caseIdx);
     } else {
       casesUpdate.push(caseSelect);
       boardObj.caseSelect = caseIdx;
     }
   }
   updateCases(boardObj, casesUpdate);
+}
+
+function movePiece(boardObj, piece, fromIdx, toIdx) {
+  boardObj.pieces[fromIdx] = 0;
+  boardObj.pieces[toIdx] = piece;
+  boardObj.caseSelect = null;
+  boardObj.turn = !boardObj.turn;
+  if (boardObj.cases[toIdx] === 0) {
+    boardObj.cases[toIdx] = (piece > 0) ? 1 : -1;
+  }
 }
 
 function getMoves(boardObj) {
