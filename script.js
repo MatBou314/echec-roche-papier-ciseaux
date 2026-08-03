@@ -2,6 +2,12 @@ const boards = document.querySelectorAll(".board");
 
 const piecesName = [null, "rock", "paper", "scissors"];
 const colsName = ["a", "b", "c", "d", "e", "f", "g", "h", "i"];
+const piecesImage = ["", "🪨", "📄", "✂️"];
+const casesClass ={
+  1: "color-case-bleu",
+  0: "color-case-vide",
+  "-1": "color-case-rouge"
+}
 
 const casesDebut = [
   ...Array(27).fill(0),
@@ -21,12 +27,12 @@ const piecesDebut = [
 
 console.log(casesDebut);
 
-// on fait un objet pour chaque board, on a l'élement du board, les cases (-1, 0 ou 1), et les pièces (0, 1, 2, 3, -1, -2 ou -3)
 boards.forEach(boardElem => {
     const board = {
         elem: boardElem,
         cases: [...casesDebut],
-        pieces: [...piecesDebut]
+        pieces: [...piecesDebut],
+        caseSelect: null
     };
     initBoard(board);
 })
@@ -39,62 +45,49 @@ function initBoard(boardObj) {
   for (let i = 0; i < 81; i++) {
     const caseElem = document.createElement("div");
     caseElem.classList.add("case");
-    caseElem.classList.add("color-case-vide")
+    caseElem.classList.add("color-case-vide");
+    caseElem.addEventListener("click", () => {manageClick(boardObj, i)});
     boardObj.elem.appendChild(caseElem);
   }
-  updateBoard(boardObj);
+  updateCases(boardObj, [...Array(81).keys()]);
 }
 
-function updateBoard(boardObj) {
+function updateCases(boardObj, casesIdx) {
   const boardElem = boardObj.elem;
   const cases = boardObj.cases;
   const pieces = boardObj.pieces;
-  for (let i = 0; i < 81; i++) {
+  for (const i of casesIdx) {
     const caseElem = boardElem.children[i];
-    switch (cases[i]) {
-      case 0:
-        caseElem.classList.remove("color-case-bleu");
-        caseElem.classList.remove("color-case-rouge");
-        caseElem.classList.add("color-case-vide");
-        break;
-      case 1:
-        caseElem.classList.remove("color-case-vide");
-        caseElem.classList.remove("color-case-rouge");
-        caseElem.classList.add("color-case-bleu");
-        break;
-      case -1:
-        caseElem.classList.remove("color-case-vide");
-        caseElem.classList.remove("color-case-bleu");
-        caseElem.classList.add("color-case-rouge");
-        break;
-    }
+    if (boardObj.caseSelect === i) {caseElem.classList.add("case-select");}
+    else {caseElem.classList.remove("case-select");}
+    caseElem.classList.remove("color-case-bleu");
+    caseElem.classList.remove("color-case-rouge");
+    caseElem.classList.remove("color-case-vide");
+    caseElem.classList.add(casesClass[cases[i]]);
     const piece = pieces[i];
     if (piece > 0) {caseElem.classList.remove("shadow-piece-rouge"); caseElem.classList.add("shadow-piece-bleu");}
     else if (piece < 0) {caseElem.classList.remove("shadow-piece-bleu"); caseElem.classList.add("shadow-piece-rouge");}
-    else {caseElem.classList.remove("shadow-piece-bleu"); caseElem.classList.remove("shadow-piece-rouge");}
-    switch (piece) {
-      case 0:
-        caseElem.textContent = "";
-        break;
-      case 1:
-        caseElem.textContent = "🪨";
-        break;
-      case 2:
-        caseElem.textContent = "📄";
-        break;
-      case 3:
-        caseElem.textContent = "✂️";
-        break;
-      case -1:
-        caseElem.textContent = "🪨";
-        break;
-      case -2:
-        caseElem.textContent = "📄";
-        break;
-      case -3:
-        caseElem.textContent = "✂️";
-        break;
-    }
+    else caseElem.classList.remove("shadow-piece-bleu", "shadow-piece-rouge");
+    caseElem.textContent = piecesImage[Math.abs(piece)];
   }
 }
 
+function manageClick(boardObj, caseIdx) {
+  const caseSelect = boardObj.caseSelect;
+  let casesUpdate = [caseIdx];
+  if (caseSelect === null) boardObj.caseSelect = caseIdx;
+  else if (caseSelect === caseIdx) boardObj.caseSelect = null;
+  else {
+    const piece = boardObj.pieces[caseSelect];
+    if (piece === 0) {
+      casesUpdate.push(caseSelect);
+      boardObj.caseSelect = caseIdx;
+    } else {
+      casesUpdate.push(caseSelect)
+      boardObj.pieces[caseSelect] = 0;
+      boardObj.pieces[caseIdx] = piece;
+      boardObj.caseSelect = null;
+    }
+  }
+  updateCases(boardObj, casesUpdate);
+}
