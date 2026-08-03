@@ -27,16 +27,23 @@ const piecesDebut = [
   ...Array(27).fill(0)
 ]
 
+
 function getCaseContour(caseIdx) {
   let casesContour = [];
-  casesContour.push(caseIdx - 10);
+  const isLeft = ((caseIdx % 9) === 0);
+  const isRight = ((caseIdx % 9) === 8);
+  if (!isLeft) {
+    casesContour.push(caseIdx - 10);
+    casesContour.push(caseIdx - 1);
+    casesContour.push(caseIdx + 8);
+  }
+  if (!isRight) {
+    casesContour.push(caseIdx - 8);
+    casesContour.push(caseIdx + 1);
+    casesContour.push(caseIdx + 10);
+  }
   casesContour.push(caseIdx - 9);
-  casesContour.push(caseIdx - 8);
-  casesContour.push(caseIdx - 1);
-  casesContour.push(caseIdx + 1);
-  casesContour.push(caseIdx + 8);
   casesContour.push(caseIdx + 9);
-  casesContour.push(caseIdx + 10);
   return casesContour.filter(idx => (idx >= 0 & idx < 81))
 }
 const casesContour = {};
@@ -44,7 +51,6 @@ const casesContour = {};
 for (let i = 0; i < 81; i++) {
   casesContour[i] = getCaseContour(i);
 }
-
 
 console.log(casesDebut);
 
