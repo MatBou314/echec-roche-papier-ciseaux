@@ -52,41 +52,48 @@ for (let i = 0; i < 81; i++) {
   casesContour[i] = getCaseContour(i);
 }
 
-console.log(casesDebut);
+function newBoard() {
+  return {
+    cases: [...casesDebut],
+    pieces: [...piecesDebut],
+    turn: true,
+    game: [],
+    legalMoves: []
+  }
+}
 
 boards.forEach(boardElem => {
-    const board = {
+    const affBoard = {
         elem: boardElem,
-        cases: [...casesDebut],
-        pieces: [...piecesDebut],
         caseSelect: null,
-        turn: true
+        board: newBoard()
     };
-    initBoard(board);
+    initBoardElem(affBoard);
 })
 
 function getCaseName(idx) {
   return colsName[Math.floor(idx / 9)] + (idx % 9 + 1);
 }
 
-function initBoard(boardObj) {
+function initBoardElem(affBoard) {
   for (let i = 0; i < 81; i++) {
     const caseElem = document.createElement("div");
     caseElem.classList.add("case");
     caseElem.classList.add("color-case-vide");
-    caseElem.addEventListener("click", () => {manageClick(boardObj, i)});
-    boardObj.elem.appendChild(caseElem);
+    caseElem.addEventListener("click", () => {manageClick(affBoard, i)});
+    affBoard.elem.appendChild(caseElem);
   }
-  updateCases(boardObj, [...Array(81).keys()]);
+  updateCases(affBoard, [...Array(81).keys()]);
 }
 
-function updateCases(boardObj, casesIdx) {
-  const boardElem = boardObj.elem;
-  const cases = boardObj.cases;
-  const pieces = boardObj.pieces;
-  for (const i of casesIdx) {
+function updateCases(affBoard, casesIdx) {
+  const boardElem = affBoard.elem;
+  const board = affBoard.board;
+  const cases = board.cases;
+  const pieces = board.pieces;
+  for (const i of casesIdx) { 
     const caseElem = boardElem.children[i];
-    if (boardObj.caseSelect === i) {caseElem.classList.add("case-select");}
+    if (affBoard.caseSelect === i) {caseElem.classList.add("case-select");}
     else {caseElem.classList.remove("case-select");}
     caseElem.classList.remove("color-case-bleu");
     caseElem.classList.remove("color-case-rouge");
@@ -100,39 +107,40 @@ function updateCases(boardObj, casesIdx) {
   }
 }
 
-function manageClick(boardObj, caseIdx) {
-  const caseSelect = boardObj.caseSelect;
+function manageClick(affBoard, caseIdx) {
+  const caseSelect = affBoard.caseSelect;
+  const board = affBoard.board;
   let casesUpdate = [caseIdx];
-  if (caseSelect === null) boardObj.caseSelect = caseIdx;
-  else if (caseSelect === caseIdx) boardObj.caseSelect = null;
+  if (caseSelect === null) affBoard.caseSelect = caseIdx;
+  else if (caseSelect === caseIdx) affBoard.caseSelect = null;
   else {
-    const piece = boardObj.pieces[caseSelect];
+    const piece = board.pieces[caseSelect];
     if (piece === 0) {
       casesUpdate.push(caseSelect);
-      boardObj.caseSelect = caseIdx;
-    } else if ((piece > 0) === boardObj.turn & casesContour[caseSelect].includes(caseIdx) & canPieceGo(boardObj.pieces, piece, caseIdx)) {
+      affBoard.caseSelect = caseIdx;
+    } else if ((piece > 0) === board.turn & casesContour[caseSelect].includes(caseIdx) & canPieceGo(board.pieces, piece, caseIdx)) {
       casesUpdate.push(caseSelect);
-      movePiece(boardObj, piece, caseSelect, caseIdx);
+      movePiece(board, piece, caseSelect, caseIdx);
+      affBoard.caseSelect = null;
     } else {
       casesUpdate.push(caseSelect);
-      boardObj.caseSelect = caseIdx;
+      affBoard.caseSelect = caseIdx;
     }
   }
-  updateCases(boardObj, casesUpdate);
+  updateCases(affBoard, casesUpdate);
 }
 
-function movePiece(boardObj, piece, fromIdx, toIdx) {
-  boardObj.pieces[fromIdx] = 0;
-  boardObj.pieces[toIdx] = piece;
-  boardObj.caseSelect = null;
-  boardObj.turn = !boardObj.turn;
-  if (boardObj.cases[toIdx] === 0) {
-    boardObj.cases[toIdx] = (piece > 0) ? 1 : -1;
+function movePiece(board, piece, fromIdx, toIdx) {
+  board.pieces[fromIdx] = 0;
+  board.pieces[toIdx] = piece;
+  board.turn = !board.turn;
+  if (board.cases[toIdx] === 0) {
+    board.cases[toIdx] = (piece > 0) ? 1 : -1;
   }
 }
 
-function getMoves(boardObj) {
-  const pieces = boardObj.pieces;
+function getMoves(board) {
+  const pieces = board.pieces;
   let moves = [];
   for (let caseIdx = 0; caseIdx < 81; caseIdx++) {
     if (pieces[caseIdx] === 0) continue;
@@ -141,6 +149,7 @@ function getMoves(boardObj) {
       if (canPieceGo(pieces, piece, toIdx)) moves.push([caseIdx, toIdx]);
     }
   }
+  return moves;
 }
 
 function canPieceGo(pieces, piece, toIdx) {
