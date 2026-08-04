@@ -1,4 +1,4 @@
-import { newBoard, casesContour, movePiece, canPieceGo } from "./board.js";
+import { newBoard, movePiece, isLegal } from "./board.js";
 
 const piecesName = [null, "rock", "paper", "scissors"];
 const colsName = ["a", "b", "c", "d", "e", "f", "g", "h", "i"];
@@ -64,7 +64,7 @@ function manageClick(affBoard, caseIdx) {
     if (piece === 0) {
       casesUpdate.push(caseSelect);
       affBoard.caseSelect = caseIdx;
-    } else if ((piece > 0) === board.turn && casesContour[caseSelect].includes(caseIdx) & canPieceGo(board.pieces, piece, caseIdx)) {
+    } else if (isLegal(board, caseSelect, caseIdx)) {
       casesUpdate.push(caseSelect);
       movePiece(board, piece, caseSelect, caseIdx);
       affBoard.caseSelect = null;

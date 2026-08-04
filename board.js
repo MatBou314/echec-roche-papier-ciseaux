@@ -35,7 +35,8 @@ function getCaseContour(caseIdx) {
   casesContour.push(caseIdx + 9);
   return casesContour.filter(idx => (idx >= 0 & idx < 81))
 }
-export const casesContour = {};
+
+const casesContour = {};
 
 for (let i = 0; i < 81; i++) {
   casesContour[i] = getCaseContour(i);
@@ -73,9 +74,16 @@ function getMoves(board) {
   return moves;
 }
 
-export function canPieceGo(pieces, piece, toIdx) {
+function canPieceGo(pieces, piece, toIdx) {
   const toPiece = pieces[toIdx];
   if (toPiece === 0) return true;
-  if ((toPiece * piece < 0) & (captures[Math.abs(piece)] === Math.abs(toPiece))) return true; 
+  if ((toPiece * piece < 0) && (captures[Math.abs(piece)] === Math.abs(toPiece))) return true; 
+  return false;
+}
+
+export function isLegal(board, from, to) {
+  const fromPiece = board.pieces[from];
+  if (fromPiece === 0 || (fromPiece > 0) !== board.turn) return false;
+  if (casesContour[from].includes(to) && canPieceGo(board.pieces, fromPiece, to)) return true;
   return false;
 }
