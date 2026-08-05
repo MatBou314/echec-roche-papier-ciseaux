@@ -13,10 +13,13 @@ const casesClass ={
 export function setUpBoards() {
   const boards = document.querySelectorAll(".board");
   boards.forEach(boardElem => {
+      const mode = boardElem.dataset.mode;
+      console.log(mode);
       const affBoard = {
           elem: boardElem,
           infoElem: null,
           caseSelect: null,
+          mode: mode,
           board: newBoard()
       };
       initBoardElem(affBoard);

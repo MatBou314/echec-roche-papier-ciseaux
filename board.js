@@ -69,8 +69,8 @@ export function getMoves(board) {
     const piece = pieces[fromIdx];
     if (piece === 0) continue;
     if (piece > 0 !== turn) continue;
-    for (const toIdx of casesContour[caseIdx]) {
-      if (canPieceGo(pieces, piece, toIdx)) moves.push([caseIdx, toIdx]);
+    for (const toIdx of casesContour[fromIdx]) {
+      if (canPieceGo(pieces, piece, toIdx)) moves.push([fromIdx, toIdx]);
     }
   }
   return moves;
@@ -117,7 +117,7 @@ export function isGameOver(board) {
 }
 
 export function winner(board) {
-  if (!board.cases.includes(0)) {const casesCount = casesCount(board); return (casesCount[0] > casesCount[1]) ? true : false;}
+  if (!board.cases.includes(0)) {const casesCount = getCasesCount(board); return (casesCount[0] > casesCount[1]) ? true : false;}
   if (!board.pieces.includes(1)) return false;
   if (!board.pieces.includes(-1)) return true;
   return null;
