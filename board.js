@@ -97,3 +97,12 @@ export function getCasesCount(board) {
   }
   return [blueCount, redCount];
 }
+
+export function play(board, from, to) {
+  const pieces = board.pieces;
+  const cases = board.cases;
+  const piece = pieces[from];
+  pieces[from] = 0;
+  pieces[to] = piece;
+  if (cases[to] === 0) cases[to] = (piece > 0) ? 1 : -1;
+}

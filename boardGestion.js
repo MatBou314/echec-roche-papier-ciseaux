@@ -49,11 +49,9 @@ function updateCases(affBoard, casesIdx) {
   const pieces = board.pieces;
   for (const i of casesIdx) { 
     const caseElem = boardElem.children[i];
+    caseElem.className = "case";
     if (affBoard.caseSelect === i) {caseElem.classList.add("case-select");}
     else {caseElem.classList.remove("case-select");}
-    caseElem.classList.remove("color-case-bleu");
-    caseElem.classList.remove("color-case-rouge");
-    caseElem.classList.remove("color-case-vide");
     caseElem.classList.add(casesClass[cases[i]]);
     const piece = pieces[i];
     if (piece > 0) {caseElem.classList.remove("shadow-piece-rouge"); caseElem.classList.add("shadow-piece-bleu");}
