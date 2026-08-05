@@ -87,3 +87,13 @@ export function isLegal(board, from, to) {
   if (casesContour[from].includes(to) && canPieceGo(board.pieces, fromPiece, to)) return true;
   return false;
 }
+
+export function getCasesCount(board) {
+  let blueCount = 0;
+  let redCount = 0;
+  for (const c of board.cases) {
+    if (c === 1) {blueCount += 1; continue;}
+    if (c === -1) redCount += 1;
+  }
+  return [blueCount, redCount];
+}

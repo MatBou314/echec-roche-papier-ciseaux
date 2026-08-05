@@ -1,4 +1,4 @@
-import { newBoard, movePiece, isLegal } from "./board.js";
+import { newBoard, movePiece, isLegal, getCasesCount } from "./board.js";
 
 const piecesName = [null, "rock", "paper", "scissors"];
 const colsName = ["a", "b", "c", "d", "e", "f", "g", "h", "i"];
@@ -14,11 +14,21 @@ export function setUpBoards() {
   boards.forEach(boardElem => {
       const affBoard = {
           elem: boardElem,
+          infoElem: null,
           caseSelect: null,
           board: newBoard()
       };
       initBoardElem(affBoard);
+      initInfoElem(affBoard);
 })
+}
+
+function initInfoElem(affBoard) {
+  const infoElem = document.createElement("div");
+  infoElem.classList.add("board-info");
+  affBoard.elem.parentNode.insertBefore(infoElem, affBoard.elem);
+  affBoard.infoElem = infoElem;
+  updateInfo(affBoard);
 }
 
 function initBoardElem(affBoard) {
@@ -53,6 +63,14 @@ function updateCases(affBoard, casesIdx) {
   }
 }
 
+function updateInfo(affBoard) {
+  const infoElem = affBoard.infoElem;
+  const board = affBoard.board;
+  if (!infoElem) return;
+  const casesCount = getCasesCount(board);
+  infoElem.textContent = `${board.turn ? "Blue" : "Red"} to play  ---  Blue Score: ${casesCount[0]}  ---  Red Score: ${casesCount[1]}`;
+}
+
 function manageClick(affBoard, caseIdx) {
   const caseSelect = affBoard.caseSelect;
   const board = affBoard.board;
@@ -73,5 +91,6 @@ function manageClick(affBoard, caseIdx) {
       affBoard.caseSelect = caseIdx;
     }
   }
+  updateInfo(affBoard);
   updateCases(affBoard, casesUpdate);
 }

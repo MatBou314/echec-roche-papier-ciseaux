@@ -72,6 +72,13 @@ h1 {
   z-index: 10;
 }
 
+.board-info {
+  position: relative;
+  color: rgb(0, 0, 0);
+  font-weight: 800;
+  font-size: 30px;
+}
+
 .menu {
   position: fixed;
   top: 0;
