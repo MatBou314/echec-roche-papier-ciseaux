@@ -1,4 +1,5 @@
 import { newBoard, movePiece, isLegal, getCasesCount } from "./board.js";
+import { randomMove } from "./bot.js"
 
 const piecesName = [null, "rock", "paper", "scissors"];
 const colsName = ["a", "b", "c", "d", "e", "f", "g", "h", "i"];
