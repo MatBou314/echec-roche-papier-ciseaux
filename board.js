@@ -107,6 +107,7 @@ export function play(board, from, to) {
   pieces[from] = 0;
   pieces[to] = piece;
   if (cases[to] === 0) cases[to] = (piece > 0) ? 1 : -1;
+  board.turn = !board.turn;
 }
 
 export function isGameOver(board) {

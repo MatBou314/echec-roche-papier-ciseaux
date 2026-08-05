@@ -1,4 +1,4 @@
-import { newBoard, movePiece, isLegal, getCasesCount } from "./board.js";
+import { newBoard, movePiece, isLegal, getCasesCount, play } from "./board.js";
 import { randomMove } from "./bot.js"
 
 const piecesName = [null, "rock", "paper", "scissors"];
@@ -24,6 +24,14 @@ export function setUpBoards() {
       };
       initBoardElem(affBoard);
       initInfoElem(affBoard);
+      if (affBoard.mode === "bvb") {
+        setInterval( () => {
+          const move = randomMove(affBoard.board);
+          play(affBoard.board, move[0], move[1]);
+          updateCases(affBoard, move);
+          updateInfo(affBoard)
+        }, 2000)
+      }
 })
 }
 
