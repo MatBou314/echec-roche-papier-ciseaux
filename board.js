@@ -52,14 +52,7 @@ export function newBoard() {
   }
 }
 
-export function movePiece(board, piece, fromIdx, toIdx) {
-  board.pieces[fromIdx] = 0;
-  board.pieces[toIdx] = piece;
-  board.turn = !board.turn;
-  if (board.cases[toIdx] === 0) {
-    board.cases[toIdx] = (piece > 0) ? 1 : -1;
-  }
-}
+
 
 export function getMoves(board) {
   const pieces = board.pieces;
@@ -108,6 +101,15 @@ export function play(board, from, to) {
   pieces[to] = piece;
   if (cases[to] === 0) cases[to] = (piece > 0) ? 1 : -1;
   board.turn = !board.turn;
+}
+
+export function movePiece(board, piece, fromIdx, toIdx) {
+  board.pieces[fromIdx] = 0;
+  board.pieces[toIdx] = piece;
+  board.turn = !board.turn;
+  if (board.cases[toIdx] === 0) {
+    board.cases[toIdx] = (piece > 0) ? 1 : -1;
+  }
 }
 
 export function isGameOver(board) {

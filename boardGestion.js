@@ -92,7 +92,7 @@ function manageClick(affBoard, caseIdx) {
     if (piece === 0) {
       casesUpdate.push(caseSelect);
       affBoard.caseSelect = caseIdx;
-    } else if (isLegal(board, caseSelect, caseIdx)) {
+    } else if (affBoard.mode !== "bvb" && isLegal(board, caseSelect, caseIdx)) {
       casesUpdate.push(caseSelect);
       movePiece(board, piece, caseSelect, caseIdx);
       affBoard.caseSelect = null;
