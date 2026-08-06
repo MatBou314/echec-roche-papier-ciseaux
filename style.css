@@ -105,11 +105,10 @@ h1 {
   display: block;
   color: black;
   font-weight: 600;
-  font-size: clamp(15px, 1.6vw, 50px);
+  font-size: clamp(10px, 2.3vw, 50px);
   text-decoration: none;
   transition: all 0.3s;
-  padding: 10px 30px;
-  white-space: nowrap;
+  padding: 10px 20px;
 }
 
 .menu a:hover {
