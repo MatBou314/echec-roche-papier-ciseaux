@@ -47,7 +47,7 @@ h1 {
   display: flex;
   justify-content: center;
   align-items: center;
-  font-size: 30px;
+  font-size: clamp(5px, 1.8vw, 40px);
   box-sizing: border-box;
   transition: all 0.1s;
   cursor: pointer;
@@ -55,7 +55,7 @@ h1 {
 }
 
 .case:hover {
-  font-size: 33px;
+  font-size: 2.2vw;
 }
 
 .color-case-vide {
@@ -81,7 +81,7 @@ h1 {
 .case-select {
   border: 4px solid rgb(0, 170, 133);
   outline: 2px solid rgb(0, 170, 133);
-  font-size: 33px;
+  font-size: 2.1vw;
   z-index: 10;
 }
 
@@ -124,12 +124,13 @@ h1 {
 
 .game-container {
   position: relative;
+  background-color: rgb(127, 0, 218);
   display: flex;
   flex-direction: row;
   width: 90%;
   padding: 1vw;
-  border: 6px solid rgb(112, 19, 170);
-  margin-top: 10px;
+  border-radius: 10px;
+  margin-top: 20px;
 }
 
 .game-container .board {
