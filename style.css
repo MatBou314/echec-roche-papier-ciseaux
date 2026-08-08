@@ -72,18 +72,18 @@ h1 {
 
 .shadow-piece-bleu {
   text-shadow: 
-    1px 1px 10px rgb(0, 0, 133),
-    1px -1px 10px rgb(0, 0, 133),
-    -1px 1px 10px rgb(0, 0, 133),
-    -1px -1px 10px rgb(0, 0, 133);
+    2px 2px 7px rgb(0, 0, 133),
+    2px -2px 7px rgb(0, 0, 133),
+    -2px 2px 7px rgb(0, 0, 133),
+    -2px -2px 7px rgb(0, 0, 133);
 }
 
 .shadow-piece-rouge {
   text-shadow: 
-    1px 1px 10px rgb(150, 0, 0),
-    1px -1px 10px rgb(150, 0, 0),
-    -1px 1px 10px rgb(150, 0, 0),
-    -1px -1px 10px rgb(150, 0, 0);
+    2px 2px 7px rgb(150, 0, 0),
+    2px -2px 7px rgb(150, 0, 0),
+    -2px 2px 7px rgb(150, 0, 0),
+    -2px -2px 7px rgb(150, 0, 0);
 }
 
 .case-select {
