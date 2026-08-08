@@ -1,5 +1,5 @@
 body {
-    margin-left: clamp(80px, 14vw, 300px);
+    margin-left: clamp(80px, 15vw, 300px);
     background-color: rgb(150, 0, 255);
 }
 
@@ -151,4 +151,6 @@ h1 {
   align-self: stretch;
   margin-top: clamp(10px, 3.3vw, 70px);
   margin-left: 6vw;
+  font-size: 2vw;
+  padding: 10px;
 }
