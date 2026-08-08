@@ -23,16 +23,28 @@ export function setUpBoards() {
           board: newBoard()
       };
       initBoardElem(affBoard);
-      initInfoElem(affBoard);
+      initControlMenuElem(affBoard);
+      
       if (affBoard.mode === "bvb") {
         setInterval( () => {
           const move = randomMove(affBoard.board);
           play(affBoard.board, move[0], move[1]);
           updateCases(affBoard, move);
           updateInfo(affBoard)
-        }, 2000)
+        }, 1200)
       }
 })
+}
+
+function initControlMenuElem(affBoard) {
+  const controlMenuElem = document.createElement("div");
+  controlMenuElem.classList.add("game-control-menu");
+  const infoElem = document.createElement("div");
+  infoElem.classList.add("board-info");
+  controlMenuElem.appendChild(infoElem);
+  affBoard.elem.parentNode.appendChild(controlMenuElem);
+  affBoard.infoElem = infoElem;
+  updateInfo(affBoard);
 }
 
 function initInfoElem(affBoard) {
@@ -78,7 +90,7 @@ function updateInfo(affBoard) {
   const board = affBoard.board;
   if (!infoElem) return;
   const casesCount = getCasesCount(board);
-  infoElem.textContent = `${board.turn ? "Blue" : "Red"} to play  ---  Blue Score: ${casesCount[0]}  ---  Red Score: ${casesCount[1]}`;
+  infoElem.textContent = `${board.turn ? "Blue" : "Red"} to play\n Scores:\n-Blue: ${casesCount[0]}\n-Red: ${casesCount[1]}`;
 }
 
 function manageClick(affBoard, caseIdx) {

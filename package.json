@@ -1,0 +1,6 @@
+{
+  "name": "chess-rpc",
+  "version": "1.0.0",
+  "description": "Jeu Chess RPC",
+  "type": "module"
+}

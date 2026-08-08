@@ -33,10 +33,12 @@ h1 {
 
 .board-info {
   position: relative;
-  top: 10px;
+  margin-top: 5px;
   color: rgb(0, 0, 0);
   font-weight: 800;
   font-size: clamp(5px, 1.7vw, 40px);
+  white-space: pre-line;
+  width: fit-content;
 }
 
 .case {
@@ -125,20 +127,14 @@ h1 {
     border-radius: 15px;
 }
 
-.board-container {
-  display: flex;
-  flex-direction: column;
-}
-
 .game-container {
   position: relative;
-  background-color: rgb(127, 0, 218);
   display: flex;
-  flex-direction: row;
   width: 90%;
   padding: 1vw;
   border-radius: 10px;
   margin-top: 20px;
+  background-color: rgb(127, 0, 218);
 }
 
 .game-container .board {
@@ -148,16 +144,15 @@ h1 {
 
 .game-container .board-info {
   position: relative;
-  width: clamp(200px, 40vw, 800px);
+  width: fit-content;
   margin-bottom: 1vw;
 }
 
 .game-control-menu {
   position: relative;
   background-color: rgb(85, 80, 80);
-  width: clamp(100px, 25vw, 500px);
+  width: clamp(100px, 27vw, 500px);
   align-self: stretch;
-  margin-top: clamp(10px, 3.3vw, 70px);
   margin-left: 6vw;
   font-size: 2vw;
   padding: 10px;
