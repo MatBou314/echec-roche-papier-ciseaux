@@ -71,11 +71,19 @@ h1 {
 }
 
 .shadow-piece-bleu {
-  text-shadow: 0px 0px 3px rgb(0, 0, 133), 0px 0px 6px rgb(0, 0, 133), 0px 0px 13px rgb(0, 0, 133);
+  text-shadow: 
+    1px 1px 10px rgb(0, 0, 133),
+    1px -1px 10px rgb(0, 0, 133),
+    -1px 1px 10px rgb(0, 0, 133),
+    -1px -1px 10px rgb(0, 0, 133);
 }
 
 .shadow-piece-rouge {
-  text-shadow: 0px 0px 3px rgb(155, 0, 8), 0px 0px 6px rgb(155, 0, 8), 0px 0px 13px rgb(155, 0, 8);
+  text-shadow: 
+    1px 1px 10px rgb(150, 0, 0),
+    1px -1px 10px rgb(150, 0, 0),
+    -1px 1px 10px rgb(150, 0, 0),
+    -1px -1px 10px rgb(150, 0, 0);
 }
 
 .case-select {
