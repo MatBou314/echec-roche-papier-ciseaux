@@ -61,8 +61,8 @@ function initControlMenuElem(affBoard) {
   arrowRight.classList.add("control-arrow");
   arrowLeft.textContent = "←";
   arrowRight.textContent = "→";
-  arrowLeft.addEventListener("pointerdown", () => undo(affBoard));
-  arrowRight.addEventListener("pointerdown", () => redo(affBoard));
+  arrowLeft.addEventListener("pointerdown", (e) => {e.preventDefault(); undo(affBoard);});
+  arrowRight.addEventListener("pointerdown", (e) => {e.preventDefault; redo(affBoard);});
   arrowContainer.appendChild(arrowLeft);
   arrowContainer.appendChild(arrowRight);
   controlMenuElem.appendChild(arrowContainer);
