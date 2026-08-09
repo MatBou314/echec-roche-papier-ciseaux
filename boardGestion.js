@@ -1,4 +1,4 @@
-import { newBoard, movePiece, isLegal, getCasesCount, play } from "./board.js";
+import { newBoard, movePiece, isLegal, getCasesCount, play, UndoMove } from "./board.js";
 import { randomMove } from "./bot.js"
 
 const piecesName = [null, "rock", "paper", "scissors"];
@@ -20,10 +20,12 @@ export function setUpBoards() {
           infoElem: null,
           caseSelect: null,
           mode: mode,
+          history: [],
+          backMoves: 0,
           board: newBoard()
       };
       initBoardElem(affBoard);
-      initControlMenuElem(affBoard);
+      if (mode) initControlMenuElem(affBoard);
       
       if (affBoard.mode === "bvb") {
         setInterval( () => {
@@ -31,8 +33,13 @@ export function setUpBoards() {
           play(affBoard.board, move[0], move[1]);
           updateCases(affBoard, move);
           updateInfo(affBoard)
-        }, 1200)
+        }, 1000)
       }
+
+      document.addEventListener("keydown", (e) => {
+        if (e.key === "ArrowLeft") undo(affBoard);
+        if (e.key === "ArrowRight") redo(affBoard);
+      })
 })
 }
 
@@ -90,7 +97,7 @@ function updateInfo(affBoard) {
   const board = affBoard.board;
   if (!infoElem) return;
   const casesCount = getCasesCount(board);
-  infoElem.textContent = `${board.turn ? "Blue" : "Red"} to play\n Scores:\n-Blue: ${casesCount[0]}\n-Red: ${casesCount[1]}`;
+  infoElem.textContent = `${board.turn ? "Blue" : "Red"} to play\n Squares:\n-Blue: ${casesCount[0]}\n-Red: ${casesCount[1]}`;
 }
 
 function manageClick(affBoard, caseIdx) {
@@ -106,7 +113,7 @@ function manageClick(affBoard, caseIdx) {
       affBoard.caseSelect = caseIdx;
     } else if (affBoard.mode !== "bvb" && isLegal(board, caseSelect, caseIdx)) {
       casesUpdate.push(caseSelect);
-      movePiece(board, piece, caseSelect, caseIdx);
+      playWithHistory(affBoard, caseSelect, caseIdx);
       affBoard.caseSelect = null;
     } else {
       casesUpdate.push(caseSelect);
@@ -115,4 +122,32 @@ function manageClick(affBoard, caseIdx) {
   }
   updateInfo(affBoard);
   updateCases(affBoard, casesUpdate);
+}
+
+function playWithHistory(affBoard, from, to) {
+  const history = affBoard.history;
+  history.splice(history.length-affBoard.backMoves);
+  const move = play(affBoard.board, from, to);
+  history.push(move);
+  affBoard.backMoves = 0;
+}
+
+function undo(affBoard) {
+  if (affBoard.backMoves >= affBoard.history.length) return;
+  affBoard.backMoves += 1;
+  const history = affBoard.history;
+  const move = history[history.length-affBoard.backMoves];
+  UndoMove(affBoard.board, move); 
+  updateInfo(affBoard);
+  updateCases(affBoard, [move.from, move.to]);
+}
+
+function redo(affBoard) {
+  if (affBoard.backMoves <= 0) return;
+  const history = affBoard.history;
+  const move = history[history.length-affBoard.backMoves];
+  play(affBoard.board, move.from, move.to);
+  affBoard.backMoves -= 1; 
+  updateInfo(affBoard);
+  updateCases(affBoard, [move.from, move.to]);
 }

@@ -95,11 +95,22 @@ export function getCasesCount(board) {
 
 export function play(board, from, to) {
   const pieces = board.pieces;
-  const cases = board.cases;
+  const toCase = board.cases[to];
+  const captured = pieces[to];
   const piece = pieces[from];
   pieces[from] = 0;
   pieces[to] = piece;
-  if (cases[to] === 0) cases[to] = (piece > 0) ? 1 : -1;
+  if (toCase === 0) board.cases[to] = (piece > 0) ? 1 : -1;
+  board.turn = !board.turn;
+  return {from, to, piece, captured, toCase};
+}
+
+export function UndoMove(board, lastMove) {
+  const from = lastMove.from;
+  const to = lastMove.to;
+  board.cases[to] = lastMove.toCase;
+  board.pieces[to] = lastMove.captured;
+  board.pieces[from] = lastMove.piece;
   board.turn = !board.turn;
 }
 

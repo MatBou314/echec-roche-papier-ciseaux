@@ -3,31 +3,26 @@ body {
     background-color: rgb(150, 0, 255);
 }
 
-p {
-  white-space: pre-line;
-}
-
 h1 {
   position: relative;
   width: fit-content;
-  margin: auto;
   padding-left: 40px;
   padding-right: 40px;
   text-align: center;
-  font-size: 50px;
-  border: 3px solid rgb(46, 0, 40);
+  font-size: 30px;
+  border: 2px solid rgb(46, 0, 40);
   border-radius: 10px;
   background-color: rgb(201, 62, 206);
 }
 
 .board {
   display: grid;
-  position: relative;
-  margin-top: 20px;
   grid-template-columns: repeat(9, 1fr);
   grid-template-rows: repeat(9, 1fr);
+  position: relative;
   width: clamp(200px, 38vw, 800px);
   aspect-ratio: 1/1;
+  margin-top: 20px;
   background-color: black;
 }
 
@@ -65,7 +60,7 @@ h1 {
 }
 
 .color-case-bleu {
-  background-color: rgb(41, 136, 165);
+  background-color: rgb(45, 141, 170);
 }
 
 .color-case-rouge {
@@ -130,22 +125,17 @@ h1 {
 .game-container {
   position: relative;
   display: flex;
-  width: 90%;
-  padding: 1vw;
+  width: fit-content;
+  padding: 3vw;
   border-radius: 10px;
   margin-top: 20px;
   background-color: rgb(127, 0, 218);
+  border: 5px solid rgb(120, 0, 210)
 }
 
 .game-container .board {
   position: relative;
   margin-top: 0;
-}
-
-.game-container .board-info {
-  position: relative;
-  width: fit-content;
-  margin-bottom: 1vw;
 }
 
 .game-control-menu {
