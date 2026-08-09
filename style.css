@@ -147,3 +147,16 @@ h1 {
   font-size: 2vw;
   padding: 10px;
 }
+
+.control-arrow {
+  position: relative;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  border: 5px solid rgb(4, 119, 0);
+  width: fit-content;
+  padding: 3px;
+  cursor: pointer;
+  user-select: none;
+  font-weight: 1000;
+}

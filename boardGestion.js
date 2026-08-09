@@ -35,11 +35,12 @@ export function setUpBoards() {
           updateInfo(affBoard)
         }, 1000)
       }
-
-      document.addEventListener("keydown", (e) => {
-        if (e.key === "ArrowLeft") undo(affBoard);
-        if (e.key === "ArrowRight") redo(affBoard);
-      })
+      if (mode) {
+        document.addEventListener("keydown", (e) => {
+          if (e.key === "ArrowLeft") ;
+          if (e.key === "ArrowRight") redo(affBoard);
+        })
+      }
 })
 }
 
@@ -52,7 +53,18 @@ function initControlMenuElem(affBoard) {
   affBoard.elem.parentNode.appendChild(controlMenuElem);
   affBoard.infoElem = infoElem;
   updateInfo(affBoard);
+  const arrowLeft = document.createElement("div");
+  const arrowRight = document.createElement("div");
+  arrowLeft.classList.add("control-arrow");
+  arrowRight.classList.add("control-arrow");
+  arrowLeft.textContent = "←";
+  arrowRight.textContent = "→";
+  arrowLeft.addEventListener("click", () => undo(affBoard));
+  arrowRight.addEventListener("click", () => redo(affBoard));
+  controlMenuElem.appendChild(arrowLeft);
+  controlMenuElem.appendChild(arrowRight);
 }
+
 
 function initInfoElem(affBoard) {
   const infoElem = document.createElement("div");
