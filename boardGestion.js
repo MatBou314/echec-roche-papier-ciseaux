@@ -61,8 +61,8 @@ function initControlMenuElem(affBoard) {
   arrowRight.classList.add("control-arrow");
   arrowLeft.textContent = "←";
   arrowRight.textContent = "→";
-  arrowLeft.addEventListener("click", () => undo(affBoard));
-  arrowRight.addEventListener("click", () => redo(affBoard));
+  arrowLeft.addEventListener("pointerdown", () => undo(affBoard));
+  arrowRight.addEventListener("pointerdown", () => redo(affBoard));
   arrowContainer.appendChild(arrowLeft);
   arrowContainer.appendChild(arrowRight);
   controlMenuElem.appendChild(arrowContainer);
@@ -82,7 +82,7 @@ function initBoardElem(affBoard) {
     const caseElem = document.createElement("div");
     caseElem.classList.add("case");
     caseElem.classList.add("color-case-vide");
-    caseElem.addEventListener("click", () => {manageClick(affBoard, i)});
+    caseElem.addEventListener("pointerdown", () => {manageClick(affBoard, i)});
     affBoard.elem.appendChild(caseElem);
   }
   updateCases(affBoard, [...Array(81).keys()]);
