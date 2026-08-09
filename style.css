@@ -148,15 +148,27 @@ h1 {
   padding: 10px;
 }
 
+.arrow-container {
+  position: relative;
+  display: flex;
+  flex-direction: row;
+  justify-content: space-evenly;
+  width: fit-content;
+  padding: 10px;
+  gap: 20px;
+}
+
 .control-arrow {
   position: relative;
   display: flex;
   justify-content: center;
   align-items: center;
-  border: 5px solid rgb(4, 119, 0);
+  border: 0px solid rgb(4, 119, 0);
+  border-radius: 10px;
   width: fit-content;
-  padding: 3px;
+  padding: 2px 20px 2px 20px;
   cursor: pointer;
   user-select: none;
-  font-weight: 1000;
+  font-weight: 2000;
+  background-color: rgb(63, 62, 62);
 }

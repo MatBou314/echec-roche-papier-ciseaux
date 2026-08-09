@@ -53,6 +53,8 @@ function initControlMenuElem(affBoard) {
   affBoard.elem.parentNode.appendChild(controlMenuElem);
   affBoard.infoElem = infoElem;
   updateInfo(affBoard);
+  const arrowContainer = document.createElement("div");
+  arrowContainer.classList.add("arrow-container");
   const arrowLeft = document.createElement("div");
   const arrowRight = document.createElement("div");
   arrowLeft.classList.add("control-arrow");
@@ -61,8 +63,9 @@ function initControlMenuElem(affBoard) {
   arrowRight.textContent = "→";
   arrowLeft.addEventListener("click", () => undo(affBoard));
   arrowRight.addEventListener("click", () => redo(affBoard));
-  controlMenuElem.appendChild(arrowLeft);
-  controlMenuElem.appendChild(arrowRight);
+  arrowContainer.appendChild(arrowLeft);
+  arrowContainer.appendChild(arrowRight);
+  controlMenuElem.appendChild(arrowContainer);
 }
 
 
