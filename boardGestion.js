@@ -68,6 +68,16 @@ function initControlMenuElem(affBoard) {
   controlMenuElem.appendChild(arrowContainer);
 }
 
+function appendToControlMenu(affBoard, newElem) {
+  const menu = affBoard.elem.parentNode.querySelector(".game-control-menu");
+  const arrowContainer = menu.querySelector(".arrow-container");
+  if (arrowContainer) {
+    menu.insertBefore(newElem, arrowContainer);
+  } else {
+    menu.appendChild(newElem);
+  }
+}
+
 
 function initInfoElem(affBoard) {
   const infoElem = document.createElement("div");
