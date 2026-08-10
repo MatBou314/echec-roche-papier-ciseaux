@@ -52,8 +52,6 @@ export function newBoard() {
   }
 }
 
-
-
 export function getMoves(board) {
   const pieces = board.pieces;
   const turn = board.turn;

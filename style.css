@@ -28,10 +28,11 @@ h1 {
 
 .board-info {
   position: relative;
-  margin-top: 5px;
+  margin-top: 18px;
+  margin-bottom: 5px;
   color: rgb(0, 0, 0);
   font-weight: 800;
-  font-size: clamp(5px, 1.7vw, 40px);
+  font-size: clamp(5px, 1.5vw, 40px);
   white-space: pre-line;
   width: fit-content;
 }
@@ -174,5 +175,33 @@ h1 {
   user-select: none;
   font-weight: 2000;
   background-color: rgb(63, 62, 62);
-  
+}
+
+.player-color-container {
+  position: relative;
+  display: flex;
+  flex-direction: row;
+  justify-content: space-evenly;
+  width: fit-content;
+  padding: 10px;
+  gap: 20px;
+}
+
+.player-color {
+  border: 2px solid black;
+  border-radius: 50%;
+  width: 2.2vw;
+  height: 2.2vw;
+}
+
+.player-blue {
+  background-color: rgb(0, 0, 133);
+}
+
+.player-red {
+  background-color: rgb(150, 0, 0);
+}
+
+.player-color-select {
+  border: 7px solid black;
 }

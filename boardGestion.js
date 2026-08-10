@@ -1,5 +1,5 @@
 import { newBoard, movePiece, isLegal, getCasesCount, play, UndoMove } from "./board.js";
-import { randomMove } from "./bot.js"
+import { randomMove, botList } from "./bot.js"
 
 const piecesName = [null, "rock", "paper", "scissors"];
 const colsName = ["a", "b", "c", "d", "e", "f", "g", "h", "i"];
@@ -22,26 +22,20 @@ export function setUpBoards() {
           mode: mode,
           history: [],
           backMoves: 0,
+          playerBlue: "human",
+          playerRed: "human",
           board: newBoard()
       };
       initBoardElem(affBoard);
-      if (mode) initControlMenuElem(affBoard);
-      
-      if (affBoard.mode === "bvb") {
-        setInterval( () => {
-          const move = randomMove(affBoard.board);
-          play(affBoard.board, move[0], move[1]);
-          updateCases(affBoard, move);
-          updateInfo(affBoard)
-        }, 1000)
-      }
       if (mode) {
+        initControlMenuElem(affBoard);
         document.addEventListener("keydown", (e) => {
           if (e.key === "ArrowLeft") undo(affBoard);
           if (e.key === "ArrowRight") redo(affBoard);
         })
+        nextTurn(affBoard);
       }
-})
+  })
 }
 
 function initControlMenuElem(affBoard) {
@@ -66,18 +60,39 @@ function initControlMenuElem(affBoard) {
   arrowContainer.appendChild(arrowLeft);
   arrowContainer.appendChild(arrowRight);
   controlMenuElem.appendChild(arrowContainer);
+  const bluePlayerTxt = createText("Blue Player:");
+  const redPlayerTxt = createText("Red Player:");
+  const selectBlue = document.createElement("select");
+  const selectRed = document.createElement("select");
+  const optionYou = document.createElement("option");
+  optionYou.textContent = "You";
+  selectBlue.appendChild(optionYou);
+  selectRed.appendChild(optionYou.cloneNode(true));
+  for (const bot in botList) {
+    const option = document.createElement("option");
+    option.textContent = bot;
+    selectBlue.appendChild(option);
+    selectRed.appendChild(option.cloneNode(true));
+  }
+  selectBlue.addEventListener("change", (e) => {affBoard.playerBlue = e.target.value; nextTurn(affBoard);});
+  selectRed.addEventListener("change", (e) => {affBoard.playerRed = e.target.value; nextTurn(affBoard)});
+  appendToControlMenu(affBoard, bluePlayerTxt, selectBlue, redPlayerTxt, selectRed);
 }
 
-function appendToControlMenu(affBoard, newElem) {
+function appendToControlMenu(affBoard, ...newElems) {
   const menu = affBoard.elem.parentNode.querySelector(".game-control-menu");
   const arrowContainer = menu.querySelector(".arrow-container");
-  if (arrowContainer) {
+  for (const newElem of newElems) {
     menu.insertBefore(newElem, arrowContainer);
-  } else {
-    menu.appendChild(newElem);
   }
 }
 
+function createText(text, size="10px") {
+  const textElem = document.createElement("p");
+  textElem.fontSize = size;
+  textElem.textContent = text;
+  return textElem;
+}
 
 function initInfoElem(affBoard) {
   const infoElem = document.createElement("div");
@@ -122,7 +137,7 @@ function updateInfo(affBoard) {
   const board = affBoard.board;
   if (!infoElem) return;
   const casesCount = getCasesCount(board);
-  infoElem.textContent = `${board.turn ? "Blue" : "Red"} to play\n Squares:\n-Blue: ${casesCount[0]}\n-Red: ${casesCount[1]}`;
+  infoElem.textContent = `${board.turn ? "Blue" : "Red"} to play\n\n Squares:\n-Blue: ${casesCount[0]}\n-Red: ${casesCount[1]}`;
 }
 
 function manageClick(affBoard, caseIdx) {
@@ -147,6 +162,19 @@ function manageClick(affBoard, caseIdx) {
   }
   updateInfo(affBoard);
   updateCases(affBoard, casesUpdate);
+  nextTurn(affBoard);
+}
+
+function nextTurn(affBoard) {
+  const turn = affBoard.board.turn ? "playerBlue" : "playerRed";
+  const player = affBoard[turn];
+  if ( player in botList) {
+    const move = botList[player](affBoard.board);
+    playWithHistory(affBoard, move[0], move[1]);
+    updateCases(affBoard, move);
+    nextTurn(affBoard);
+  }
+  
 }
 
 function playWithHistory(affBoard, from, to) {
@@ -162,9 +190,11 @@ function undo(affBoard) {
   affBoard.backMoves += 1;
   const history = affBoard.history;
   const move = history[history.length-affBoard.backMoves];
+  const caseSelect = affBoard.caseSelect;
+  affBoard.caseSelect = null;
   UndoMove(affBoard.board, move); 
   updateInfo(affBoard);
-  updateCases(affBoard, [move.from, move.to]);
+  updateCases(affBoard, [move.from, move.to, caseSelect]);
 }
 
 function redo(affBoard) {
@@ -173,6 +203,8 @@ function redo(affBoard) {
   const move = history[history.length-affBoard.backMoves];
   play(affBoard.board, move.from, move.to);
   affBoard.backMoves -= 1; 
+  const caseSelect = affBoard.caseSelect;
+  affBoard.caseSelect = null;
   updateInfo(affBoard);
-  updateCases(affBoard, [move.from, move.to]);
+  updateCases(affBoard, [move.from, move.to, caseSelect]);
 }
