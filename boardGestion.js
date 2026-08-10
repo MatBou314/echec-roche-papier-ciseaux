@@ -18,12 +18,14 @@ export function setUpBoards() {
       const affBoard = {
           elem: boardElem,
           infoElem: null,
+          panelElem: null,
           caseSelect: null,
           mode: mode,
           history: [],
           backMoves: 0,
           playerBlue: "human",
           playerRed: "human",
+          botTimeout: null,
           board: newBoard()
       };
       initBoardElem(affBoard);
@@ -38,15 +40,15 @@ export function setUpBoards() {
   })
 }
 
-function initControlMenuElem(affBoard) {
-  const controlMenuElem = document.createElement("div");
-  controlMenuElem.classList.add("game-control-menu");
+function createBoardInfo(affBoard) {
   const infoElem = document.createElement("div");
   infoElem.classList.add("board-info");
-  controlMenuElem.appendChild(infoElem);
-  affBoard.elem.parentNode.appendChild(controlMenuElem);
   affBoard.infoElem = infoElem;
   updateInfo(affBoard);
+  return infoElem;
+}
+
+function createNavArrows(affBoard) {
   const arrowContainer = document.createElement("div");
   arrowContainer.classList.add("arrow-container");
   const arrowLeft = document.createElement("div");
@@ -59,7 +61,31 @@ function initControlMenuElem(affBoard) {
   arrowRight.addEventListener("pointerdown", (e) => {e.preventDefault; redo(affBoard);});
   arrowContainer.appendChild(arrowLeft);
   arrowContainer.appendChild(arrowRight);
-  controlMenuElem.appendChild(arrowContainer);
+  return arrowContainer
+}
+
+function createBotPanel(affBoard) {
+  panel.appendChild(createText("Bot :"));
+  const panel = document.createElement("div");
+  const select = document.createElement("select");
+  for (const bot in botList) {
+    const option = document.createElement("option");
+    option.textContent = bot;
+    option.value = bot;
+    select.appendChild(option);
+  }
+  return panel;
+}
+
+function initControlMenuElem(affBoard) {
+  const panel = document.createElement("div");
+  panel.classList.add("game-control-menu");
+  affBoard.elem.parentNode.appendChild(panel);
+  affBoard.panelElem = panel;
+
+  panel.appendChild(createBoardInfo(affBoard));
+
+  // ========== Players Types ========== //
   const bluePlayerTxt = createText("Blue Player:");
   const redPlayerTxt = createText("Red Player:");
   const selectBlue = document.createElement("select");
@@ -76,15 +102,10 @@ function initControlMenuElem(affBoard) {
   }
   selectBlue.addEventListener("change", (e) => {affBoard.playerBlue = e.target.value; nextTurn(affBoard);});
   selectRed.addEventListener("change", (e) => {affBoard.playerRed = e.target.value; nextTurn(affBoard)});
-  appendToControlMenu(affBoard, bluePlayerTxt, selectBlue, redPlayerTxt, selectRed);
-}
+  panel.append(bluePlayerTxt, selectBlue, redPlayerTxt, selectRed);
 
-function appendToControlMenu(affBoard, ...newElems) {
-  const menu = affBoard.elem.parentNode.querySelector(".game-control-menu");
-  const arrowContainer = menu.querySelector(".arrow-container");
-  for (const newElem of newElems) {
-    menu.insertBefore(newElem, arrowContainer);
-  }
+
+  panel.appendChild(createNavArrows(affBoard));
 }
 
 function createText(text, size="10px") {
@@ -174,7 +195,6 @@ function nextTurn(affBoard) {
     updateCases(affBoard, move);
     nextTurn(affBoard);
   }
-  
 }
 
 function playWithHistory(affBoard, from, to) {
