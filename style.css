@@ -3,6 +3,10 @@ body {
     background-color: rgb(150, 0, 255);
 }
 
+p {
+  font-weight: 1000;
+}
+
 h1 {
   position: relative;
   width: fit-content;
@@ -107,21 +111,22 @@ h1 {
   z-index: 100;
 }
 
-.menu a {
+.menu p {
   display: block;
   color: black;
   font-weight: 600;
   font-size: clamp(10px, 2.3vw, 50px);
-  text-decoration: none;
   transition: all 0.3s;
   padding: 10px 20px;
+  cursor: pointer;
 }
 
-.menu a:hover {
-    color: rgb(55, 3, 87);
-    background-color: rgb(110, 110, 110);
-    border-radius: 15px;
+.menu p:hover {
+  color: rgb(55, 3, 87);
+  background-color: rgb(110, 110, 110);
+  border-radius: 15px;
 }
+
 
 .game-container {
   position: relative;
