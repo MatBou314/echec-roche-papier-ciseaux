@@ -4,7 +4,8 @@ body {
 }
 
 p {
-  font-weight: 1000;
+  font-weight: 100;
+  margin: 0.1vw;
 }
 
 h1 {
@@ -127,7 +128,6 @@ h1 {
   border-radius: 15px;
 }
 
-
 .game-container {
   position: relative;
   display: flex;
@@ -214,5 +214,8 @@ h1 {
 .bot-panel {
   position: relative;
   display: flex;
+  flex-direction: column;
   background-color: rgb(63, 62, 62);
+  padding: 5px;
+  margin-top: 10px;
 }

@@ -33,7 +33,7 @@ function getCaseContour(caseIdx) {
   }
   casesContour.push(caseIdx - 9);
   casesContour.push(caseIdx + 9);
-  return casesContour.filter(idx => (idx >= 0 & idx < 81))
+  return casesContour.filter(idx => (idx >= 0 && idx < 81))
 }
 
 const casesContour = {};
@@ -123,14 +123,14 @@ export function movePiece(board, piece, fromIdx, toIdx) {
 
 export function isGameOver(board) {
   if (!board.cases.includes(0)) return true;
-  if (!board.pieces.includes(1)) return true;
-  if (!board.pieces.includes(-1)) return true;
+  if (!board.pieces.some(p => p > 0)) return true;
+  if (!board.pieces.some(p => p < 0)) return true;
   return false;
 }
 
 export function winner(board) {
   if (!board.cases.includes(0)) {const casesCount = getCasesCount(board); return (casesCount[0] > casesCount[1]) ? true : false;}
-  if (!board.pieces.includes(1)) return false;
-  if (!board.pieces.includes(-1)) return true;
+  if (!board.pieces.some(p => p > 0)) return false;
+  if (!board.pieces.some(p => p < 0)) return true;
   return null;
 }

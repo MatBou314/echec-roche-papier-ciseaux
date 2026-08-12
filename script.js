@@ -1,5 +1,5 @@
 import {} from "./board.js"
-import { setUpBoard, changePanel, mainAffBoard } from "./boardGestion.js";
+import { setUpBoard, changePanel, mainAffBoard, nextTurn } from "./boardGestion.js";
 
 const modes = {
   jvj: "play in person",
@@ -21,12 +21,13 @@ function changeMode(mode) {
   } else
   if (mode === "jvb") {
     mainAffBoard.playerBlue = "human";
-    mainAffBoard.playerRed = mainAffBoard.bot1.id;
+    mainAffBoard.playerRed = "bot1";
   } else 
   if (mode === "bvb") {
-    mainAffBoard.playerBlue = mainAffBoard.bot1.id;
-    mainAffBoard.playerRed = mainAffBoard.bot2.id;
+    mainAffBoard.playerBlue = "bot1";
+    mainAffBoard.playerRed = "bot2";
   }
+  nextTurn(mainAffBoard)
 }
 
 
