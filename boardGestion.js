@@ -28,6 +28,9 @@ worker.onmessage = function(event) {
   else resolve(move);
 }
 
+function cancelAllBotRequests() {
+  moveRequests.clear();
+}
 
 function newBot() {
   return {
@@ -47,13 +50,15 @@ function newAffBoard(mode="jvj") {
           mode: mode,
           history: [],
           backMoves: 0,
-          playerBlue: "human",
-          playerRed: "human",
+          isBot: {
+            true: false,
+            false: false
+          },
           bot1: newBot(),
           bot2: newBot(),
           botPause: true,
           board: newBoard()
-      };
+      }
 }
 
 export function changePanel(affBoard, mode) {
@@ -126,7 +131,7 @@ function createBotPanel(affBoard, mainPanel) {
   maxTime.addEventListener("change", () => {
     bot.maxTime = parseInt(maxTime.value);
   })
-  mainPanel.appendChild(panel);
+  mainPanel.appendChild(panel)
 }
 
 function initPanel(affBoard) {
@@ -200,8 +205,7 @@ function updateInfo(affBoard) {
 }
 
 function manageClick(affBoard, caseIdx) {
-  const actualPlayer = affBoard[affBoard.turn ? "playerBlue" : "playerRed"];
-  const isBot = ["bot1", "bot2"].includes(actualPlayer);
+  const isBot = affBoard.isBot[affBoard.board.turn];
   const caseSelect = affBoard.caseSelect;
   const board = affBoard.board;
   let casesUpdate = [caseIdx];
@@ -227,9 +231,7 @@ function manageClick(affBoard, caseIdx) {
 }
 
 export function nextTurn(affBoard) {
-  const turn = affBoard.board.turn ? "playerBlue" : "playerRed";
-  const player = affBoard[turn];
-  if ( player !== "human") {
+  if (affBoard.isBot[affBoard.board.turn]) {
     playBotMove(affBoard)
   }
 }
@@ -243,7 +245,7 @@ async function playBotMove(affBoard) {
 
 function getBotMove(affBoard) {
   return new Promise((resolve, reject) => {
-    const bot = affBoard[affBoard[affBoard.board.turn ? "playerBlue" : "playerRed"]];
+    const bot = affBoard[affBoard.board.turn ? "bot1" : "bot2"];
     const requestId = Date.now();
     moveRequests.set(requestId, {resolve, reject});
     worker.postMessage({
@@ -264,6 +266,7 @@ function playWithHistory(affBoard, from, to) {
 }
 
 function undo(affBoard) {
+  cancelAllBotRequests()
   if (affBoard.backMoves >= affBoard.history.length) return;
   affBoard.backMoves += 1;
   const history = affBoard.history;
@@ -276,6 +279,7 @@ function undo(affBoard) {
 }
 
 function redo(affBoard) {
+  cancelAllBotRequests()
   if (affBoard.backMoves <= 0) return;
   const history = affBoard.history;
   const move = history[history.length-affBoard.backMoves];

@@ -16,16 +16,16 @@ function changeMode(mode) {
   changePanel(mainAffBoard, mode);
 
   if (mode === "jvj") {
-    mainAffBoard.playerBlue = "human";
-    mainAffBoard.playerRed = "human";
+    mainAffBoard.isBot.true = false;
+    mainAffBoard.isBot.false = false;
   } else
   if (mode === "jvb") {
-    mainAffBoard.playerBlue = "human";
-    mainAffBoard.playerRed = "bot1";
+    mainAffBoard.isBot.true = false;
+    mainAffBoard.isBot.false = true;
   } else 
   if (mode === "bvb") {
-    mainAffBoard.playerBlue = "bot1";
-    mainAffBoard.playerRed = "bot2";
+    mainAffBoard.isBot.true = true;
+    mainAffBoard.isBot.false = true;
   }
   nextTurn(mainAffBoard)
 }
