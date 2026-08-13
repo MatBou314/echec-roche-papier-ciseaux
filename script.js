@@ -1,5 +1,5 @@
 import {} from "./board.js"
-import { setUpBoard, changePanel, mainAffBoard, nextTurn } from "./boardGestion.js";
+import { setUpBoard, changePanel, mainAffBoard, nextTurn, cancelAllBotRequests } from "./boardGestion.js";
 
 const modes = {
   jvj: "play in person",
@@ -10,6 +10,7 @@ const modes = {
 let actualMode = "jvj";
 
 function changeMode(mode) {
+  cancelAllBotRequests()
   actualMode = mode;
   mainAffBoard.mode = mode;
   createMenu()

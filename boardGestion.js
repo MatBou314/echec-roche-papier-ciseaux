@@ -28,7 +28,10 @@ worker.onmessage = function(event) {
   else resolve(move);
 }
 
-function cancelAllBotRequests() {
+export function cancelAllBotRequests() {
+  for (const [requestId, { reject }] of moveRequests.entries()) {
+    reject();
+  }
   moveRequests.clear();
 }
 
@@ -237,10 +240,13 @@ export function nextTurn(affBoard) {
 }
 
 async function playBotMove(affBoard) {
-  const move = await getBotMove(affBoard);
-  playWithHistory(affBoard, move[0], move[1]);
-  updateCases(affBoard, move);
-  nextTurn(affBoard);
+  try {
+    const move = await getBotMove(affBoard);
+    playWithHistory(affBoard, move[0], move[1]);
+    updateCases(affBoard, move);
+    nextTurn(affBoard);
+  } catch {
+  }
 }
 
 function getBotMove(affBoard) {
@@ -276,6 +282,7 @@ function undo(affBoard) {
   UndoMove(affBoard.board, move); 
   updateInfo(affBoard);
   updateCases(affBoard, [move.from, move.to, caseSelect]);
+  nextTurn(affBoard);
 }
 
 function redo(affBoard) {
@@ -289,4 +296,5 @@ function redo(affBoard) {
   affBoard.caseSelect = null;
   updateInfo(affBoard);
   updateCases(affBoard, [move.from, move.to, caseSelect]);
+  nextTurn(affBoard);
 }
