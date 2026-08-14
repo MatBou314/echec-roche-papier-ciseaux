@@ -17,22 +17,28 @@ const PanelStructure = {
 }
 
 export const mainAffBoard = newAffBoard();
-
-const worker = new Worker("worker.js", {type: "module"});
+let worker;
 const moveRequests = new Map();
-worker.onmessage = function(event) {
-  const {move, requestId, error} = event.data;
-  if (!moveRequests.has(requestId)) return;
-  const {resolve, reject} = moveRequests.get(requestId);
-  if (error) reject(error);
-  else resolve(move);
+
+function initWorker() {
+  worker = new Worker("worker.js", {type: "module"});
+  worker.onmessage = function(event) {
+    const {move, requestId, error} = event.data;
+    if (!moveRequests.has(requestId)) return;
+    const {resolve, reject} = moveRequests.get(requestId);
+    if (error) reject(error);
+    else resolve(move);
+  }
 }
+initWorker();
 
 export function cancelAllBotRequests() {
-  for (const [requestId, { reject }] of moveRequests.entries()) {
-    reject();
+  for (const [, { reject }] of moveRequests) {
+    reject("Cancelled");
   }
   moveRequests.clear();
+  worker.terminate();
+  initWorker();
 }
 
 function newBot() {
@@ -272,8 +278,8 @@ function playWithHistory(affBoard, from, to) {
 }
 
 function undo(affBoard) {
-  cancelAllBotRequests()
   if (affBoard.backMoves >= affBoard.history.length) return;
+  cancelAllBotRequests()
   affBoard.backMoves += 1;
   const history = affBoard.history;
   const move = history[history.length-affBoard.backMoves];
@@ -286,8 +292,8 @@ function undo(affBoard) {
 }
 
 function redo(affBoard) {
-  cancelAllBotRequests()
   if (affBoard.backMoves <= 0) return;
+  cancelAllBotRequests()
   const history = affBoard.history;
   const move = history[history.length-affBoard.backMoves];
   play(affBoard.board, move.from, move.to);
