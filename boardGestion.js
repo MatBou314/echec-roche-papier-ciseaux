@@ -1,4 +1,4 @@
-import { newBoard, movePiece, isLegal, getCasesCount, play, UndoMove } from "./board.js";
+import { newBoard, movePiece, isLegal, getCasesCount, play, UndoMove, isGameOver } from "./board.js";
 import { randomMove, botList } from "./bot.js"
 
 const piecesName = [null, "rock", "paper", "scissors"];
@@ -210,7 +210,8 @@ function updateInfo(affBoard) {
   const board = affBoard.board;
   if (!infoElem) return;
   const casesCount = getCasesCount(board);
-  infoElem.textContent = `${board.turn ? "Blue" : "Red"} to play\n\n Squares:\n-Blue: ${casesCount[0]}\n-Red: ${casesCount[1]}`;
+  infoElem.textContent = !isGameOver(affBoard.board) ? `${board.turn ? "Blue" : "Red"} to play\n\n` : `victory for ${!board.turn ? "Blue" : "Red"}\n\n`;
+  infoElem.textContent += `Squares:\n-Blue: ${casesCount[0]}\n-Red: ${casesCount[1]}`;
 }
 
 function manageClick(affBoard, caseIdx) {
@@ -240,6 +241,7 @@ function manageClick(affBoard, caseIdx) {
 }
 
 export function nextTurn(affBoard) {
+  if (isGameOver(affBoard.board)) return;
   if (affBoard.isBot[affBoard.board.turn]) {
     playBotMove(affBoard)
   }
