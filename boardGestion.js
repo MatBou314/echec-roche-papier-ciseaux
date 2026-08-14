@@ -59,14 +59,22 @@ function newAffBoard(mode="jvj") {
           mode: mode,
           history: [],
           backMoves: 0,
-          isBot: {
-            true: false,
-            false: false
+          bot: {
+            true: null,
+            false: null
           },
           bot1: newBot(),
           bot2: newBot(),
           botPause: true,
-          board: newBoard()
+          board: newBoard(),
+          isBot() {
+            if (this.bot[this.board.turn] === null) return false;
+            return true;
+          },
+          getBot() {
+            return this[this.bot[this.board.turn]];
+          }
+
       }
 }
 
@@ -215,7 +223,7 @@ function updateInfo(affBoard) {
 }
 
 function manageClick(affBoard, caseIdx) {
-  const isBot = affBoard.isBot[affBoard.board.turn];
+  const isBot = affBoard.isBot();
   const caseSelect = affBoard.caseSelect;
   const board = affBoard.board;
   let casesUpdate = [caseIdx];
@@ -242,7 +250,7 @@ function manageClick(affBoard, caseIdx) {
 
 export function nextTurn(affBoard) {
   if (isGameOver(affBoard.board)) return;
-  if (affBoard.isBot[affBoard.board.turn]) {
+  if (affBoard.isBot()) {
     playBotMove(affBoard)
   }
 }
@@ -260,7 +268,7 @@ async function playBotMove(affBoard) {
 
 function getBotMove(affBoard) {
   return new Promise((resolve, reject) => {
-    const bot = affBoard[affBoard.board.turn ? "bot1" : "bot2"];
+    const bot = affBoard.getBot();
     const requestId = Date.now();
     moveRequests.set(requestId, {resolve, reject});
     worker.postMessage({
