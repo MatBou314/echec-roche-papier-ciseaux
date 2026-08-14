@@ -1,4 +1,4 @@
-import { newBoard, movePiece, isLegal, getCasesCount, play, UndoMove, isGameOver } from "./board.js";
+import { newBoard, movePiece, isLegal, getCasesCount, play, UndoMove, isGameOver, winner } from "./board.js";
 import { randomMove, botList } from "./bot.js"
 
 const piecesName = [null, "rock", "paper", "scissors"];
@@ -210,7 +210,7 @@ function updateInfo(affBoard) {
   const board = affBoard.board;
   if (!infoElem) return;
   const casesCount = getCasesCount(board);
-  infoElem.textContent = !isGameOver(affBoard.board) ? `${board.turn ? "Blue" : "Red"} to play\n\n` : `victory for ${!board.turn ? "Blue" : "Red"}\n\n`;
+  infoElem.textContent = !isGameOver(affBoard.board) ? `${board.turn ? "Blue" : "Red"} to play\n\n` : `victory for ${winner(affBoard.board) ? "Blue" : "Red"}\n\n`;
   infoElem.textContent += `Squares:\n-Blue: ${casesCount[0]}\n-Red: ${casesCount[1]}`;
 }
 
@@ -226,7 +226,7 @@ function manageClick(affBoard, caseIdx) {
     if (piece === 0) {
       casesUpdate.push(caseSelect);
       affBoard.caseSelect = caseIdx;
-    } else if (!isBot && isLegal(board, caseSelect, caseIdx)) {
+    } else if (!isBot && !isGameOver(board) && isLegal(board, caseSelect, caseIdx)) {
       casesUpdate.push(caseSelect);
       playWithHistory(affBoard, caseSelect, caseIdx);
       affBoard.caseSelect = null;
@@ -252,6 +252,7 @@ async function playBotMove(affBoard) {
     const move = await getBotMove(affBoard);
     playWithHistory(affBoard, move[0], move[1]);
     updateCases(affBoard, move);
+    updateInfo(affBoard);
     nextTurn(affBoard);
   } catch {
   }
