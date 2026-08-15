@@ -134,3 +134,7 @@ export function winner(board) {
   if (!board.pieces.some(p => p < 0)) return true;
   return null;
 }
+
+export function hash(board) {
+  return board.cases.join('') + "/" + board.pieces.join('') + "/" (board.turn ? '1' : '0');
+}

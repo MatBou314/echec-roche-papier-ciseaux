@@ -81,7 +81,7 @@ export function changePanel(affBoard) {
   const panel = affBoard.panelElem;
   if (panel === null) {console.log("NO panel"); return} 
   panel.innerHTML = "";
-  initPanel(affBoard);
+  updatePanel(affBoard);
 }
 
 export function setUpBoard(affBoard) {
@@ -89,7 +89,7 @@ export function setUpBoard(affBoard) {
   affBoard.elem = elem;
   console.log(affBoard.mode);
   initBoardElem(affBoard);
-  initPanel(affBoard);
+  updatePanel(affBoard);
   document.addEventListener("keydown", (e) => {
     if (e.key === "ArrowLeft") undo(affBoard);
     if (e.key === "ArrowRight") redo(affBoard);
@@ -167,7 +167,7 @@ function createBotPanel(affBoard, mainPanel) {
     affBoard.bot.true = affBoard.bot.false;
     affBoard.bot.false = blueBot;
     cancelAllBotRequests();
-    changePanel(affBoard);
+    updatePanel(affBoard);
     nextTurn(affBoard);
   })
   panel.appendChild(colorChange);
@@ -188,7 +188,7 @@ function createBotPause(affBoard, mainPanel) {
   mainPanel.appendChild(botPause)
 }
 
-function initPanel(affBoard) {
+function updatePanel(affBoard) {
   if (affBoard.panelElem === null) {
     const mainPanel = document.createElement("div");
     mainPanel.classList.add("game-control-menu");
@@ -324,7 +324,7 @@ function playWithHistory(affBoard, from, to) {
   affBoard.backMoves = 0;
   if (isGameOver(affBoard.board)) {
     affBoard.botPause = true;
-    initPanel(affBoard);
+    UpdatePanel(affBoard);
     updateInfo(affBoard);
   }
 }
@@ -341,7 +341,7 @@ function undo(affBoard) {
   UndoMove(affBoard.board, move); 
   updateInfo(affBoard);
   updateCases(affBoard, [move.from, move.to, caseSelect]);
-  initPanel(affBoard);
+  updatePanel(affBoard);
   nextTurn(affBoard);
 }
 
@@ -357,6 +357,6 @@ function redo(affBoard) {
   affBoard.caseSelect = null;
   updateInfo(affBoard);
   updateCases(affBoard, [move.from, move.to, caseSelect]);
-  initPanel(affBoard);
+  UpdatePanel(affBoard);
   nextTurn(affBoard);
 }
