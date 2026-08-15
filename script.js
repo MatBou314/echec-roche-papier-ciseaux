@@ -13,8 +13,7 @@ function changeMode(mode) {
   cancelAllBotRequests()
   actualMode = mode;
   mainAffBoard.mode = mode;
-  createMenu()
-  changePanel(mainAffBoard, mode);
+  mainAffBoard.botPause = true;
 
   if (mode === "jvj") {
     mainAffBoard.bot.true = null;
@@ -28,6 +27,8 @@ function changeMode(mode) {
     mainAffBoard.bot.true = "bot1";
     mainAffBoard.bot.false = "bot2";
   }
+  createMenu()
+  changePanel(mainAffBoard);
   nextTurn(mainAffBoard)
 }
 

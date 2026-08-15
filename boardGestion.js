@@ -12,8 +12,8 @@ const casesClass ={
 
 const PanelStructure = {
   jvj: [createBoardInfo, createNavArrows],
-  jvb: [createBoardInfo, createBotPanel, createNavArrows],
-  bvb: [createBoardInfo, createBotPanel, createBotPanel, createNavArrows]
+  jvb: [createBoardInfo, createBotPanel, createBotPause, createNavArrows],
+  bvb: [createBoardInfo, createBotPanel, createBotPanel, createBotPause, createNavArrows]
 }
 
 export const mainAffBoard = newAffBoard();
@@ -73,22 +73,21 @@ function newAffBoard(mode="jvj") {
           },
           getBot() {
             return this[this.bot[this.board.turn]];
-          }
-
+          },
       }
 }
 
-export function changePanel(affBoard, mode) {
+export function changePanel(affBoard) {
   const panel = affBoard.panelElem;
   if (panel === null) {console.log("NO panel"); return} 
   panel.innerHTML = "";
   initPanel(affBoard);
 }
 
-export function setUpBoard(affBoard, mode) {
+export function setUpBoard(affBoard) {
   const elem = document.querySelector(".board");
   affBoard.elem = elem;
-  console.log(mode);
+  console.log(affBoard.mode);
   initBoardElem(affBoard);
   initPanel(affBoard);
   document.addEventListener("keydown", (e) => {
@@ -123,11 +122,13 @@ function createNavArrows(affBoard, mainPanel) {
 }
 
 function createBotPanel(affBoard, mainPanel) {
-  const bot = affBoard[!affBoard.bot1.isControlled ? "bot1" : "bot2"];
+  const botName = !affBoard.bot1.isControlled ? "bot1" : "bot2"
+  const bot = affBoard[botName];
   bot.isControlled = true;
   
   const panel = document.createElement("div");
   panel.classList.add('bot-panel')
+  // Bot type 
   panel.appendChild(createText("Bot type:"));
   const select = document.createElement("select");
   panel.appendChild(select);
@@ -140,20 +141,54 @@ function createBotPanel(affBoard, mainPanel) {
   select.value = bot.id;
   select.addEventListener("change", () => {
     bot.id = select.value;
+    cancelAllBotRequests();
+    nextTurn(affBoard);
   });
+  // max Time
   panel.appendChild(createText("max time:"));
   const maxTime = document.createElement("input");
   maxTime.value = bot.maxTime;
   panel.appendChild(maxTime);
   maxTime.addEventListener("change", () => {
     bot.maxTime = parseInt(maxTime.value);
+    cancelAllBotRequests();
+    nextTurn(affBoard);
   })
+  // color change
+  const colorChange = document.createElement("div");
+  colorChange.classList.add("color-change");
+  if (affBoard.bot.false === botName) {
+    colorChange.style.borderColor = "rgb(255, 20, 20)";
+  }
+  colorChange.textContent = "Change Color ↺";
+  colorChange.addEventListener("pointerdown", () => {
+    const blueBot = affBoard.bot.true;
+    affBoard.bot.true = affBoard.bot.false;
+    affBoard.bot.false = blueBot;
+    cancelAllBotRequests();
+    changePanel(affBoard);
+    nextTurn(affBoard)
+  })
+  panel.appendChild(colorChange);
+
   mainPanel.appendChild(panel)
+}
+
+function createBotPause(affBoard, mainPanel) {
+  const botPause = document.createElement("div");
+  botPause.classList.add("bot-pause");
+  botPause.textContent = affBoard.botPause ? "▶ Resume Bot" : "⏸ Pause Bot";
+  botPause.addEventListener("pointerdown", () => {
+    cancelAllBotRequests();
+    affBoard.botPause = !affBoard.botPause;
+    botPause.textContent = affBoard.botPause ? "▶ Resume Bot" : "⏸ Pause Bot";
+    nextTurn(affBoard);
+  })
+  mainPanel.appendChild(botPause)
 }
 
 function initPanel(affBoard) {
   if (affBoard.panelElem === null) {
-    
     const mainPanel = document.createElement("div");
     mainPanel.classList.add("game-control-menu");
     affBoard.elem.parentNode.appendChild(mainPanel);
@@ -250,7 +285,7 @@ function manageClick(affBoard, caseIdx) {
 
 export function nextTurn(affBoard) {
   if (isGameOver(affBoard.board)) return;
-  if (affBoard.isBot()) {
+  if (!affBoard.botPause && affBoard.isBot()) {
     playBotMove(affBoard)
   }
 }
@@ -286,6 +321,11 @@ function playWithHistory(affBoard, from, to) {
   const move = play(affBoard.board, from, to);
   history.push(move);
   affBoard.backMoves = 0;
+  if (isGameOver(affBoard.board)) {
+    affBoard.botPause = true;
+    initPanel(affBoard);
+    updateInfo(affBoard);
+  }
 }
 
 function undo(affBoard) {
@@ -296,6 +336,7 @@ function undo(affBoard) {
   const move = history[history.length-affBoard.backMoves];
   const caseSelect = affBoard.caseSelect;
   affBoard.caseSelect = null;
+  affBoard.botPause = true;
   UndoMove(affBoard.board, move); 
   updateInfo(affBoard);
   updateCases(affBoard, [move.from, move.to, caseSelect]);
@@ -305,6 +346,7 @@ function undo(affBoard) {
 function redo(affBoard) {
   if (affBoard.backMoves <= 0) return;
   cancelAllBotRequests()
+  affBoard.botPause = true;
   const history = affBoard.history;
   const move = history[history.length-affBoard.backMoves];
   play(affBoard.board, move.from, move.to);
