@@ -43,7 +43,7 @@ export function cancelAllBotRequests() {
 
 function newBot() {
   return {
-    id: "random",
+    id: "minimax",
     maxTime: 2000,
     maxDepth: 20,
     isControlled: false
@@ -167,7 +167,7 @@ function createBotPanel(affBoard, mainPanel) {
     affBoard.bot.false = blueBot;
     cancelAllBotRequests();
     changePanel(affBoard);
-    nextTurn(affBoard)
+    nextTurn(affBoard);
   })
   panel.appendChild(colorChange);
 
