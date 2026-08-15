@@ -1,21 +1,19 @@
 import { play, getMoves, UndoMove, isGameOver, winner } from "./board.js";
 
 export function randomMove(board, maxTime) {
-  const startTime = Date.now();
-  while (Date.now() -startTime < maxTime) {
-    let num = Math.sqrt(Math.random() * 9994737);
-  }
   const moves = getMoves(board);
   return moves[Math.floor(Math.random() * moves.length)]
 }
 
 function evaluation(board) {
   let score = 0;
-  for (const square of board.cases) {
-    score += square;
-  }
-  for (const piece of board.pieces) {
-    score += (piece > 0) * 5;
+  const pieces = board.pieces;
+  const cases = board.cases;
+  for (let i = 0; i < 81; i++) {
+    const piece = pieces[i];
+    if (piece > 0) score += 5;
+    else if (piece < 0) score -= 5;
+    score += cases[i];
   }
   return score;
 }

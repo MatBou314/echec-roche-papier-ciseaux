@@ -147,6 +147,7 @@ function createBotPanel(affBoard, mainPanel) {
   // max Time
   panel.appendChild(createText("max time:"));
   const maxTime = document.createElement("input");
+  maxTime.type = "number";
   maxTime.value = bot.maxTime;
   panel.appendChild(maxTime);
   maxTime.addEventListener("change", () => {
@@ -340,6 +341,7 @@ function undo(affBoard) {
   UndoMove(affBoard.board, move); 
   updateInfo(affBoard);
   updateCases(affBoard, [move.from, move.to, caseSelect]);
+  initPanel(affBoard);
   nextTurn(affBoard);
 }
 
@@ -355,5 +357,6 @@ function redo(affBoard) {
   affBoard.caseSelect = null;
   updateInfo(affBoard);
   updateCases(affBoard, [move.from, move.to, caseSelect]);
+  initPanel(affBoard);
   nextTurn(affBoard);
 }
