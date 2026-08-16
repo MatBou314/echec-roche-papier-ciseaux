@@ -1,4 +1,10 @@
-import { play, getMoves, UndoMove, isGameOver, winner, hash } from "./board.js";
+import { play, getMoves, UndoMove, isGameOver, winner } from "./board.js";
+
+function rand64() {
+  const high = BigInt(Math.floor(Math.random() * 0xFFFFFFFF));
+  const low = BigInt(Math.floor(Math.random() * 0xFFFFFFFF));
+  return (high << 32n) | low;
+}
 
 export function randomMove(board, maxTime) {
   const moves = getMoves(board);
@@ -16,6 +22,10 @@ function evaluation(board) {
     score += cases[i];
   }
   return score;
+}
+
+function hash(board) {
+  return board.cases.join('') + board.pieces.join('') + (board.turn ? '1' : '0');
 }
 
 function minimax(board, depth, alpha = -Infinity, beta = Infinity) {
@@ -68,13 +78,14 @@ let timeLimit = 0;
 let startTime = 0;
 
 function minimaxMemory(board, depth, alpha = -Infinity, beta = Infinity) {
-  if (isGameOver(board)) {
-    return [winner(board) ? 150 + depth : -150 - depth, null];
-  }
   if (depth <= 0) {
     return [evaluation(board), null];
   }
-  const boardMemory = memory[hash(board)];
+  if (isGameOver(board)) {
+    return [winner(board) ? 150 + depth : -150 - depth, null];
+  }
+  const boardHash = hash(board);
+  const boardMemory = memory[boardHash];
   let lastBestMove = null;
   if (boardMemory) {
     if (boardMemory.depth >= depth) {
@@ -105,11 +116,17 @@ function minimaxMemory(board, depth, alpha = -Infinity, beta = Infinity) {
       }
       
     }
-    memory[hash(board)] = {
-      eval: bestEval,
-      move: bestMove,
-      depth
-    }
+    if (boardMemory) {
+      boardMemory.eval = bestEval;
+      boardMemory.move = bestMove;
+      boardMemory.depth = depth;
+    } else {
+      memory[boardHash] = {
+        eval: bestEval,
+        move: bestMove,
+        depth
+      }
+  }
     return [bestEval, bestMove];
   } else {
     let bestMove = null;
@@ -130,11 +147,17 @@ function minimaxMemory(board, depth, alpha = -Infinity, beta = Infinity) {
       }
       
     }
-    memory[hash(board)] = {
-      eval: bestEval,
-      move: bestMove,
-      depth
-    }
+    if (boardMemory) {
+      boardMemory.eval = bestEval;
+      boardMemory.move = bestMove;
+      boardMemory.depth = depth;
+    } else {
+      memory[boardHash] = {
+        eval: bestEval,
+        move: bestMove,
+        depth
+      }
+  }
     return [bestEval, bestMove];
   }  
 }
@@ -148,21 +171,26 @@ function orderMoves(moves, bestMove) {
 }
 
 function iterativeDeepening(board, maxTime) {
+  console.profile("Iterative");
   timeLimit = maxTime
   startTime = Date.now()
   let bestMove = null;
   let bestEval = null;
+  let maxDepth = 0;
   try {
     for (let depth = 1; depth < 2048; depth++) {
       const [currentEval, currentMove] = minimaxMemory(board, depth);
       bestEval = currentEval;
       bestMove = currentMove;
+      maxDepth = depth;
       if (Math.abs(bestEval) > 140) return [bestEval, bestMove];
     }
   } catch (error) {
       if (error.message !== "Timeout") throw error;
   }
   memory = {};
+  console.log(maxDepth);
+  console.profileEnd("Iterative")
   return [bestEval, bestMove];
 }
 
@@ -174,7 +202,6 @@ export const botList = {
   iterativeDeepening: (board, maxTime) => {
     const startTime = Date.now();
     const move = iterativeDeepening(board, maxTime)[1];
-    //console.log(`Iterative: ${Date.now() - startTime}`);
     return move;
   }
 }

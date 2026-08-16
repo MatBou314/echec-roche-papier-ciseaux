@@ -47,8 +47,9 @@ export function newBoard() {
     cases: [...casesDebut],
     pieces: [...piecesDebut],
     turn: true,
-    game: [],
-    legalMoves: []
+    eval: 0,
+    gameOver: false,
+    hash: null
   }
 }
 
@@ -106,9 +107,10 @@ export function play(board, from, to) {
 export function UndoMove(board, lastMove) {
   const from = lastMove.from;
   const to = lastMove.to;
+  const pieces = board.pieces;
   board.cases[to] = lastMove.toCase;
-  board.pieces[to] = lastMove.captured;
-  board.pieces[from] = lastMove.piece;
+  pieces[to] = lastMove.captured;
+  pieces[from] = lastMove.piece;
   board.turn = !board.turn;
 }
 
@@ -126,6 +128,48 @@ export function winner(board) {
   return null;
 }
 
-export function hash(board) {
-  return board.cases.join('') + "/" + board.pieces.join('') + "/" + (board.turn ? '1' : '0');
+const hashing = {
+  1: {
+    "-3": "a",
+    "-2": "b",
+    "-1": "c",
+    0: "d",
+    1: "e",
+    2: "f",
+    3: "g"
+  },
+
+  0: {
+    "-3": "h",
+    "-2": "i",
+    "-1": "j",
+    0: "k",
+    1: "l",
+    2: "m",
+    3: "n"
+  },
+  "-1": {
+    "-3": "o",
+    "-2": "p",
+    "-1": "q",
+    0: "r",
+    1: "s",
+    2: "t",
+    3: "u"
+  }
+}
+
+function hash(board) {
+  return board.cases.join('') + board.pieces.join('') + (board.turn ? '1' : '0');
+}
+
+function hash1(board) {
+  let HASH = "";
+  const pieces = board.pieces;
+  const cases = board.cases;
+  for (let i = 0; i < 81; i++) {
+    HASH += hashing[cases[i]][pieces[i]];
+  }
+  HASH += (board.turn ? '1' : '0');
+  return HASH;
 }
