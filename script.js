@@ -1,5 +1,6 @@
-import {} from "./board.js"
-import { setUpBoard, changePanel, mainAffBoard, nextTurn, cancelAllBotRequests } from "./boardGestion.js";
+import { newBoard, play } from "./board.js"
+import { setUpBoard, changePanel, mainAffBoard, nextTurn, cancelAllBotRequests, getBotMove, newAffBoard } from "./boardGestion.js";
+import { botList } from "./bot.js";
 
 const modes = {
   jvj: "play in person",
@@ -51,3 +52,39 @@ function createMenu() {
 createMenu()
 setUpBoard(mainAffBoard, "jvj")
 
+async function testBots() {
+  const affBoard = newAffBoard();
+  let totTimeMinimax = 0;
+  let totTimeIterative = 0;
+  const messageSameMove = "The bots gave the same move";
+  const messageDiffMoves = "The bots gave different moves";
+  affBoard.bot1.id = "minimax";
+  affBoard.bot2.id = "iterativeDeepening";
+
+  for (let i = 1; i <= 1000; i++) {
+    affBoard.bot.true = "bot1";
+    affBoard.bot.false = "bot1"
+    const startTime1 = Date.now();
+    const moveMinimax = await getBotMove(affBoard);
+    const timeMinimax = Date.now() - startTime1;
+    totTimeMinimax += timeMinimax;
+    
+    affBoard.bot.true = "bot2";
+    affBoard.bot.false = "bot2"
+    const startTime2 = Date.now();
+    const moveIterative = await getBotMove(affBoard);
+    const timeIterative = Date.now() - startTime2;
+    totTimeIterative += timeIterative;
+
+    console.log(`
+      Minimax: 
+      - time: ${timeMinimax}
+      - mean time: ${totTimeMinimax/i}
+      Iterative: 
+      - time: ${timeIterative}
+      - mean time: ${totTimeIterative/i}
+      ${(moveIterative[0] === moveMinimax[0] && moveIterative[1] === moveMinimax[1]) ? messageSameMove : messageDiffMoves}
+      `)
+    play(affBoard.board, moveIterative[0], moveIterative[1]);
+  }
+}

@@ -1,4 +1,4 @@
-import { newBoard, movePiece, isLegal, getCasesCount, play, UndoMove, isGameOver, winner } from "./board.js";
+import { newBoard, isLegal, getCasesCount, play, UndoMove, isGameOver, winner } from "./board.js";
 import { randomMove, botList } from "./bot.js"
 
 const piecesName = [null, "rock", "paper", "scissors"];
@@ -17,7 +17,7 @@ const PanelStructure = {
 }
 
 export const mainAffBoard = newAffBoard();
-let worker;
+export let worker = new Worker("worker.js", {type: "module"});
 const moveRequests = new Map();
 
 function initWorker() {
@@ -27,7 +27,10 @@ function initWorker() {
     if (!moveRequests.has(requestId)) return;
     const {resolve, reject} = moveRequests.get(requestId);
     if (error) reject(error);
-    else resolve(move);
+    else {
+      moveRequests.delete(requestId);
+      resolve(move);
+    }
   }
 }
 initWorker();
@@ -50,7 +53,7 @@ function newBot() {
   }
 }
 
-function newAffBoard(mode="jvj") {
+export function newAffBoard(mode="jvj") {
   return {
           elem: null,
           infoElem: null,
@@ -211,14 +214,6 @@ function createText(text, size="20px") {
   return textElem;
 }
 
-function initInfoElem(affBoard) {
-  const infoElem = document.createElement("div");
-  infoElem.classList.add("board-info");
-  affBoard.elem.parentNode.insertBefore(infoElem, affBoard.elem);
-  affBoard.infoElem = infoElem;
-  updateInfo(affBoard);
-}
-
 function initBoardElem(affBoard) {
   for (let i = 0; i < 81; i++) {
     const caseElem = document.createElement("div");
@@ -302,7 +297,7 @@ async function playBotMove(affBoard) {
   }
 }
 
-function getBotMove(affBoard) {
+export function getBotMove(affBoard) {
   return new Promise((resolve, reject) => {
     const bot = affBoard.getBot();
     const requestId = Date.now();
@@ -324,7 +319,7 @@ function playWithHistory(affBoard, from, to) {
   affBoard.backMoves = 0;
   if (isGameOver(affBoard.board)) {
     affBoard.botPause = true;
-    UpdatePanel(affBoard);
+    updatePanel(affBoard);
     updateInfo(affBoard);
   }
 }
@@ -357,6 +352,6 @@ function redo(affBoard) {
   affBoard.caseSelect = null;
   updateInfo(affBoard);
   updateCases(affBoard, [move.from, move.to, caseSelect]);
-  UpdatePanel(affBoard);
+  updatePanel(affBoard);
   nextTurn(affBoard);
 }

@@ -112,15 +112,6 @@ export function UndoMove(board, lastMove) {
   board.turn = !board.turn;
 }
 
-export function movePiece(board, piece, fromIdx, toIdx) {
-  board.pieces[fromIdx] = 0;
-  board.pieces[toIdx] = piece;
-  board.turn = !board.turn;
-  if (board.cases[toIdx] === 0) {
-    board.cases[toIdx] = (piece > 0) ? 1 : -1;
-  }
-}
-
 export function isGameOver(board) {
   if (!board.cases.includes(0)) return true;
   if (!board.pieces.some(p => p > 0)) return true;
@@ -136,5 +127,5 @@ export function winner(board) {
 }
 
 export function hash(board) {
-  return board.cases.join('') + "/" + board.pieces.join('') + "/" (board.turn ? '1' : '0');
+  return board.cases.join('') + "/" + board.pieces.join('') + "/" + (board.turn ? '1' : '0');
 }
