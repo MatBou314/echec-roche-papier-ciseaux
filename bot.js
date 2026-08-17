@@ -41,34 +41,38 @@ function playHash(board, from, to) {
   const toCase = board.cases[to];
   const toPiece = pieces[to];
   const fromPiece = pieces[from];
+  let hash = board.hash;
 
   const fromZorbP = from * 7;
   const toZorbP = to * 7;
   const toZorbC = to * 3;
+  
 
   memFromPiece[movePtr] = fromPiece;
   memToPiece[movePtr] = toPiece;
   memToCase[movePtr] = toCase;
-  memHash[movePtr] = board.hash;
+  memHash[movePtr] = hash;
   movePtr++;
 
   pieces[from] = 0;
-  board.hash ^= zobristPieces[fromZorbP + fromPiece + 3]
-  board.hash ^= zobristPieces[fromZorbP + 3]
+  hash ^= zobristPieces[fromZorbP + fromPiece + 3]
+  hash ^= zobristPieces[fromZorbP + 3]
 
   pieces[to] = fromPiece;
-  board.hash ^= zobristPieces[toZorbP + toPiece + 3]
-  board.hash ^= zobristPieces[toZorbP + fromPiece + 3]
+  hash ^= zobristPieces[toZorbP + toPiece + 3]
+  hash ^= zobristPieces[toZorbP + fromPiece + 3]
 
   if (toCase === 0) {
     const newToCase = (fromPiece > 0) ? 1 : -1;
     board.cases[to] = newToCase;
-    board.hash ^= zobristCases[toZorbC + 1]
-    board.hash ^= zobristCases[toZorbC + newToCase + 1]
+    hash ^= zobristCases[toZorbC + 1]
+    hash ^= zobristCases[toZorbC + newToCase + 1]
   }
 
-  board.hash ^= zobristTurn;
+  hash ^= zobristTurn;
   board.turn = !board.turn;
+
+  board.hash = hash;
 }
 
 function UndoHash(board, from, to) {
