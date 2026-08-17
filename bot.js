@@ -122,6 +122,33 @@ function evaluationAm(board) {
   return (casesVides/63) * scorePieces + scoreCases;
 }
 
+function evaluationCasesMap(board) {
+  let scorePieces = 0;
+  let scoreCases = 0;
+  let casesVides = 0;
+
+  const pieces = board.pieces;
+  const cases = board.cases;
+
+  for (let i = 0; i < 81; i++) {
+    const piece = pieces[i];
+    if (piece > 0) scorePieces += 5;
+    else if (piece < 0) scorePieces -= 5;
+    const square = cases[i];
+    if (square === 0) {
+      casesVides += 1;
+    }
+    else if (square === 1) {
+      scoreCases += i % 9 + 1;
+    }
+    else {
+      scoreCases += 9 - (i % 9);
+    }
+  }
+  return (casesVides/63) * scorePieces + (scoreCases/4);
+}
+
+
 
 function minimax(board, depth, alpha = -Infinity, beta = Infinity) {
   if (isGameOver(board)) return [winner(board) ? 150 + depth : -150 - depth, null]
@@ -130,9 +157,10 @@ function minimax(board, depth, alpha = -Infinity, beta = Infinity) {
     let bestMove = null;
     let bestEval = -Infinity;
     const moves = getMoves(board);
-    for (const move of moves) {
+    for (let i = 0; i < moves.length; i++) {
+      const move = moves[i];
       const memMove = play(board, move[0], move[1]);
-      const [moveEval, TestBestMove] = minimax(board, depth-1, alpha, beta);
+      const moveEval = minimax(board, depth-1, alpha, beta)[0];
       UndoMove(board, memMove);
       if (moveEval > bestEval) {
         bestEval = moveEval;
@@ -149,9 +177,10 @@ function minimax(board, depth, alpha = -Infinity, beta = Infinity) {
     let bestMove = null;
     let bestEval = Infinity;
     const moves = getMoves(board);
-    for (const move of moves) {
+    for (let i = 0; i < moves.length; i++) {
+      const move = moves[i];
       const memMove = play(board, move[0], move[1]);
-      const [moveEval, TestBestMove] = minimax(board, depth-1, alpha, beta);
+      const moveEval = minimax(board, depth-1, alpha, beta)[0];
       UndoMove(board, memMove);
       if (moveEval < bestEval) {
         bestEval = moveEval;
@@ -161,7 +190,6 @@ function minimax(board, depth, alpha = -Infinity, beta = Infinity) {
           break;
         }
       }
-      
     }
     return [bestEval, bestMove];
   }
@@ -301,5 +329,11 @@ export const botList = {
     const startTime = Date.now();
     const move = iterativeDeepening(board, maxTime, evaluationAm)[1];
     return move;
-  }
+  },
+
+  "Bot #3": (board, maxTime) => {
+    const startTime = Date.now();
+    const move = iterativeDeepening(board, maxTime, evaluationCasesMap)[1];
+    return move;
+  },
 }
