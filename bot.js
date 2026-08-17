@@ -142,7 +142,7 @@ function evaluationCasesMap(board) {
       scoreCases += i % 9 + 1;
     }
     else {
-      scoreCases += 9 - (i % 9);
+      scoreCases -= (9 - (i % 9));
     }
   }
   return (casesVides/63) * scorePieces + (scoreCases/4);
