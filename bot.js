@@ -6,17 +6,11 @@ function rand64() {
   return (high << 32n) | low;
 }
 
-const zobristPieces = Array.from({length: 81}, () => {
-  const map = {};
-  for (let i = -3; i <= 3; i++) map[i] = rand64();
-  return map;
-})
+const zobristPieces = new BigUint64Array(81 * 7);
+for (let i = 0; i < 81 * 7; i++) zobristPieces[i] = rand64();
 
-const zobristCases = Array.from({length: 81}, () => ({
-    "-1": rand64(),
-    "0": rand64(),
-    "1": rand64()
-}))
+const zobristCases = new BigUint64Array(81 * 3);
+for (let i = 0; i < 81 * 3; i++) zobristCases[i] = rand64();
 
 const zobristTurn = rand64();
 
@@ -24,11 +18,8 @@ function initialHash(board) {
   let hash = 0n; // BigInt à 0
 
   for (let i = 0; i < 81; i++) {
-    const c = board.cases[i];
-    const p = board.pieces[i];
-
-    hash ^= zobristCases[i][c];
-    hash ^= zobristPieces[i][p];
+    hash ^= zobristCases[(i * 3) + board.cases[i] + 1];
+    hash ^= zobristPieces[(i * 7) + board.pieces[i] + 3];
   }
 
   if (board.turn) {
@@ -38,10 +29,10 @@ function initialHash(board) {
   board.hash = hash;
 }
 
-const memFromPiece = new Int8Array(4096);
-const memToPiece   = new Int8Array(4096);
-const memToCase    = new Int8Array(4096);
-const memHash      = new BigUint64Array(4096);
+const memFromPiece = new Int8Array(128);
+const memToPiece   = new Int8Array(128);
+const memToCase    = new Int8Array(128);
+const memHash      = new BigUint64Array(128);
 
 let movePtr = 0;
 
@@ -51,6 +42,10 @@ function playHash(board, from, to) {
   const toPiece = pieces[to];
   const fromPiece = pieces[from];
 
+  const fromZorbP = from * 7;
+  const toZorbP = to * 7;
+  const toZorbC = to * 3;
+
   memFromPiece[movePtr] = fromPiece;
   memToPiece[movePtr] = toPiece;
   memToCase[movePtr] = toCase;
@@ -58,18 +53,18 @@ function playHash(board, from, to) {
   movePtr++;
 
   pieces[from] = 0;
-  board.hash ^= zobristPieces[from][fromPiece];
-  board.hash ^= zobristPieces[from][0];
+  board.hash ^= zobristPieces[fromZorbP + fromPiece + 3]
+  board.hash ^= zobristPieces[fromZorbP + 3]
 
   pieces[to] = fromPiece;
-  board.hash ^= zobristPieces[to][toPiece];
-  board.hash ^= zobristPieces[to][fromPiece];
+  board.hash ^= zobristPieces[toZorbP + toPiece + 3]
+  board.hash ^= zobristPieces[toZorbP + fromPiece + 3]
 
   if (toCase === 0) {
     const newToCase = (fromPiece > 0) ? 1 : -1;
     board.cases[to] = newToCase;
-    board.hash ^= zobristCases[to][0];
-    board.hash ^= zobristCases[to][newToCase];
+    board.hash ^= zobristCases[toZorbC + 1]
+    board.hash ^= zobristCases[toZorbC + newToCase + 1]
   }
 
   board.hash ^= zobristTurn;
@@ -273,7 +268,10 @@ function iterativeDeepening(board, maxTime, evalFunction=evaluation) {
   let bestEval = null;
   let maxDepth = 0;
   initialHash(board);
+
   memory = new Map();
+  movePtr = 0;
+  nodeCount = 0;
   try {
     for (let depth = 2; depth < 2048; depth++) {
       const [currentEval, currentMove] = minimaxMemory(board, depth, evalFunction);

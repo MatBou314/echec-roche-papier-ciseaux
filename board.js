@@ -49,6 +49,9 @@ export function newBoard() {
     turn: true,
     eval: 0,
     gameOver: false,
+    emptyCases: 63,
+    bluePiece: 9,
+    redPiece: 9,
     hash: null
   }
 }
