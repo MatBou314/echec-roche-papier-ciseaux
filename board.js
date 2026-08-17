@@ -1,20 +1,20 @@
 const captures = [null, 3, 1, 2];
 
-const casesDebut = [
+const casesDebut = new Int8Array([
   ...Array(27).fill(0),
   1, 1, 1, 0, 0, 0, -1, -1, -1,
   1, 1, 1, 0, 0, 0, -1, -1, -1,
   1, 1, 1, 0, 0, 0, -1, -1, -1,
   ...Array(27).fill(0)
-]
+])
 
-const piecesDebut = [
+const piecesDebut = new Int8Array([
   ...Array(27).fill(0),
   2, 3, 1, 0, 0, 0, -1, -3, -2,
   3, 1, 2, 0, 0, 0, -2, -1, -3,
   1, 2, 3, 0, 0, 0, -3, -2, -1,
   ...Array(27).fill(0)
-]
+])
 
 
 function getCaseContour(caseIdx) {
@@ -44,8 +44,8 @@ for (let i = 0; i < 81; i++) {
 
 export function newBoard() {
   return {
-    cases: [...casesDebut],
-    pieces: [...piecesDebut],
+    cases: new Int8Array(casesDebut),
+    pieces: new Int8Array(piecesDebut),
     turn: true,
     eval: 0,
     gameOver: false,

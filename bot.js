@@ -41,6 +41,7 @@ function initialHash(board) {
 function playHash(board, from, to) {
   const pieces = board.pieces;
   const toCase = board.cases[to];
+  const lastHash = board.hash;
 
   const toPiece = pieces[to];
   const fromPiece = pieces[from];
@@ -63,28 +64,19 @@ function playHash(board, from, to) {
   board.hash ^= zobristTurn;
   board.turn = !board.turn;
 
-  return {from, to, fromPiece, toPiece, toCase};
+  return {from, to, fromPiece, toPiece, toCase, lastHash};
 }
 
 function UndoHash(board, lastMove) {
-  const {from, to, fromPiece, toPiece, toCase} = lastMove;
+  const {from, to, fromPiece, toPiece, toCase, lastHash} = lastMove;
   const pieces = board.pieces;
   const cases = board.cases;
 
-  board.hash ^= zobristCases[to][cases[to]];
-  board.hash ^= zobristCases[to][toCase];
   board.cases[to] = toCase;
-  
-  board.hash ^= zobristPieces[to][fromPiece];
-  board.hash ^= zobristPieces[to][toPiece];
   pieces[to] = toPiece;
-
-  board.hash ^= zobristPieces[from][0];
-  board.hash ^= zobristPieces[from][fromPiece];
   pieces[from] = fromPiece;
-
-  board.hash ^= zobristTurn;
   board.turn = !board.turn;
+  board.hash = lastHash;
 }
 
 function hash(board) {
@@ -108,6 +100,28 @@ function evaluation(board) {
   }
   return score;
 }
+
+function evaluationAm(board) {
+  let scorePieces = 0;
+  let scoreCases = 0;
+  let casesVides = 0;
+
+  const pieces = board.pieces;
+  const cases = board.cases;
+
+  for (let i = 0; i < 81; i++) {
+    const piece = pieces[i];
+    if (piece > 0) scorePieces += 5;
+    else if (piece < 0) scorePieces -= 5;
+    const square = cases[i];
+    if (square === 0) {
+      casesVides += 1;
+    }
+    else scoreCases += square;
+  }
+  return (casesVides/63) * scorePieces + scoreCases;
+}
+
 
 function minimax(board, depth, alpha = -Infinity, beta = Infinity) {
   if (isGameOver(board)) return [winner(board) ? 150 + depth : -150 - depth, null]
@@ -158,14 +172,13 @@ let nodeCount = 0;
 let timeLimit = 0;
 let startTime = 0;
 
-function minimaxMemory(board, depth, alpha = -Infinity, beta = Infinity) {
+function minimaxMemory(board, depth, evalFunction, alpha = -Infinity, beta = Infinity) {
   if (depth <= 0) {
-    return [evaluation(board), null];
+    return [evalFunction(board), null];
   }
   if (isGameOver(board)) {
     return [winner(board) ? 150 + depth : -150 - depth, null];
   }
-  //const boardHash = hash(board);
   const boardMemory = memory.get(board.hash)
   let lastBestMove = null;
   if (boardMemory) {
@@ -185,7 +198,7 @@ function minimaxMemory(board, depth, alpha = -Infinity, beta = Infinity) {
     if (lastBestMove) orderMoves(moves, lastBestMove);
     for (const move of moves) {
       const memMove = playHash(board, move[0], move[1]);
-      const [moveEval, TestBestMove] = minimaxMemory(board, depth-1, alpha, beta);
+      const [moveEval, TestBestMove] = minimaxMemory(board, depth-1, evalFunction, alpha, beta);
       UndoHash(board, memMove);
       if (moveEval > bestEval) {
         bestEval = moveEval;
@@ -216,7 +229,7 @@ function minimaxMemory(board, depth, alpha = -Infinity, beta = Infinity) {
     if (lastBestMove) orderMoves(moves, lastBestMove);
     for (const move of moves) {
       const memMove = playHash(board, move[0], move[1]);
-      const [moveEval, TestBestMove] = minimaxMemory(board, depth-1, alpha, beta);
+      const [moveEval, TestBestMove] = minimaxMemory(board, depth-1, evalFunction, alpha, beta);
       UndoHash(board, memMove);
       if (moveEval < bestEval) {
         bestEval = moveEval;
@@ -251,7 +264,7 @@ function orderMoves(moves, bestMove) {
   }
 }
 
-function iterativeDeepening(board, maxTime) {
+function iterativeDeepening(board, maxTime, evalFunction=evaluation) {
   console.profile("Iterative");
   timeLimit = maxTime
   startTime = Date.now()
@@ -261,8 +274,8 @@ function iterativeDeepening(board, maxTime) {
   initialHash(board);
   memory = new Map();
   try {
-    for (let depth = 1; depth < 2048; depth++) {
-      const [currentEval, currentMove] = minimaxMemory(board, depth);
+    for (let depth = 2; depth < 2048; depth++) {
+      const [currentEval, currentMove] = minimaxMemory(board, depth, evalFunction);
       bestEval = currentEval;
       bestMove = currentMove;
       maxDepth = depth;
@@ -277,17 +290,16 @@ function iterativeDeepening(board, maxTime) {
 }
 
 export const botList = {
-  random: (board, maxTime) => {
-    return randomMove(board)
-  },
 
-  minimax: (board, maxTime) => {
-    return minimax(board, 6)[1];
-  },
-
-  iterativeDeepening: (board, maxTime) => {
+  "Bot #1": (board, maxTime) => {
     const startTime = Date.now();
-    const move = iterativeDeepening(board, maxTime)[1];
+    const move = iterativeDeepening(board, maxTime, evaluation)[1];
+    return move;
+  },
+
+  "Bot #2": (board, maxTime) => {
+    const startTime = Date.now();
+    const move = iterativeDeepening(board, maxTime, evaluationAm)[1];
     return move;
   }
 }

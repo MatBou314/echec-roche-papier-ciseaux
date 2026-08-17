@@ -46,7 +46,7 @@ export function cancelAllBotRequests() {
 
 function newBot() {
   return {
-    id: "minimax",
+    id: Object.keys(botList)[0],
     maxTime: 2000,
     maxDepth: 20,
     isControlled: false
