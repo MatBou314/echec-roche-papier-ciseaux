@@ -91,13 +91,20 @@ function UndoHash(board, from, to) {
   board.hash = lastHash;
 }
 
-function hash(board) {
-  return board.cases.join('') + board.pieces.join('') + (board.turn ? '1' : '0');
-}
-
 export function randomMove(board) {
   const moves = getMoves(board);
   return moves[Math.floor(Math.random() * moves.length)]
+}
+
+const DIST_TABLE = new Uint8Array(81 * 81);
+
+for (let i = 0; i < 81; i++) {
+  for (let j = 0; j < 81; j++) {
+    DIST_TABLE[81 * i + j] = dist(i, j);
+  }
+}
+function dist(idx1, idx2) {
+  return Math.max(Math.abs((idx1 % 9) - (idx2 % 9)), Math.abs(Math.floor(idx1/9) - Math.floor(idx2/9)));
 }
 
 function evaluation(board) {
@@ -157,8 +164,149 @@ function evaluationCasesMap(board) {
       scoreCases -= (9 - (i % 9));
     }
   }
-  return (casesVides/63) * scorePieces + (scoreCases/4);
+  return (0.2 + (casesVides/63)) * scorePieces + (scoreCases/4);
 }
+
+function synergy(cases, CASESTOSEE) {
+  let casesToSee = [...CASESTOSEE]
+  if (cases.length === 0 || casesToSee.length === 0) return 0;
+  let score = 0;
+  for (let i = 0; i < cases.length; i++) {
+    let min = Infinity
+    let minCase = null;
+    for (let j = 0; j < casesToSee.length; j++) {
+      const distance = DIST_TABLE[81 * cases[i] + casesToSee[j]]
+      if (min > distance) {
+        min = distance;
+        minCase = j;
+      }
+    }
+    score += 9 - min;
+    casesToSee.splice(minCase, 1);
+    if (casesToSee.length === 0) return score;
+  }
+  return score;
+}
+
+function evaluationStategique(board) {
+  let scorePieces = 0;
+  let scoreCases = 0;
+  let casesVides = [];
+  const piecesPos = new Map([
+    [-3, []],
+    [-2, []],
+    [-1, []],
+    [1, []],
+    [2, []],
+    [3, []]
+  ]);
+  const pieces = board.pieces;
+  const cases = board.cases;
+
+  for (let i = 0; i < 81; i++) {
+    const piece = pieces[i];
+    if (piece !== 0) {
+      if (piece > 0) scorePieces += 5;
+      else scorePieces -= 5;
+      piecesPos.get(piece).push(i);
+    }
+    const square = cases[i];
+    if (square === 0) {
+      casesVides.push(i);
+    }
+    else if (square === 1) {
+      scoreCases += i % 9 + 1;
+    }
+    else {
+      scoreCases -= (9 - (i % 9));
+    }
+  }
+  
+  let PPpositioning = 0;
+  const blueR = piecesPos.get(1);
+  const blueP = piecesPos.get(2);
+  const blueS = piecesPos.get(3);
+  const redR = piecesPos.get(-1);
+  const redP = piecesPos.get(-2);
+  const redS = piecesPos.get(-3);
+  PPpositioning += (synergy(blueR, blueS) + synergy(blueP, blueR) + synergy(blueS, blueP)) / (blueP.length + blueR.length + blueS.length);
+  PPpositioning -= (synergy(redR, redS) + synergy(redP, redR) + synergy(redS, redP)) / (redP.length + redR.length + redS.length);
+
+  let PCpositionning = 0;
+  PCpositionning += synergy([...blueR, ...blueP, ...blueS], casesVides);
+  PCpositionning -= synergy([...redR, ...redP, ...redS], casesVides);
+  
+  //if (Math.random() < 0.00005) console.log(scoreCases, scorePieces, PPpositioning, PCpositionning);
+  return (0.8 + (casesVides.length/63)) * (scorePieces/40) + 10.5 * (scoreCases/61) + PPpositioning + PCpositionning;
+}
+
+const bluePieces = new Uint8Array(9);
+const redPieces = new Uint8Array(9);
+const emptySquares = new Uint8Array(63);
+
+const squareValue = new Uint8Array([3, 3.2, 3.3, 3.4, 3.5, 3.6, 3.7, 3.8, 3.8]);
+
+function evalVirtualMap(board) {
+  let Pscore = 0;
+  let Cscore = 0;
+
+  let blueCount = 0;
+  let redCount = 0;
+  let emptyCount = 0;
+
+  const pieces = board.pieces;
+  const cases = board.cases;
+
+  for (let i = 0; i < 81; i++) {
+    const p = pieces[i];
+    const c = cases[i];
+
+    if (p > 0) {
+      Pscore += 15;
+      bluePieces[blueCount++] = i;
+    } else if (p < 0) {
+      Pscore -= 15;
+      redPieces[redCount++] = i;
+    };
+
+    if (c === 0) {
+      emptySquares[emptyCount++] = i;
+    } else if (c === 1) {
+      Cscore += squareValue[i % 9];
+    } else {
+      Cscore -= squareValue[8 - (i % 9)];
+    }
+  }
+
+  let PpositioningScore = 0;
+  for (let i = 0; i < emptyCount; i++) {
+    const square = emptySquares[i];
+    let minBlue = 10;
+    let minRed = 10;
+
+    for (let j = 0; j < blueCount; j++) {
+      const d = DIST_TABLE[81 * square + bluePieces[j]]; 
+      if (d < minBlue) minBlue = d;
+    }
+
+    for (let j = 0; j < redCount; j++) {
+      const d = DIST_TABLE[81 * square + redPieces[j]]; 
+      if (d < minRed) minRed = d;
+    }
+
+    if (minBlue < minRed) {
+      PpositioningScore += 0.3 * squareValue[emptySquares[i] % 9];
+    } else if (minBlue > minRed) {
+      PpositioningScore -= 0.3 * squareValue[8 - (emptySquares[i] % 9)];
+    }
+    PpositioningScore -= minBlue/3.4;
+    PpositioningScore += minRed/3.4;
+  }
+  return Pscore + Cscore + PpositioningScore;
+}
+
+
+
 
 let memory = new Map();
 let nodeCount = 0;
@@ -167,10 +315,10 @@ let startTime = 0;
 
 function minimaxMemory(board, depth, evalFunction, alpha = -Infinity, beta = Infinity) {
   if (depth <= 0) {
-    return [evalFunction(board), null];
+    if (memToPiece[movePtr-1] === 0) return [evalFunction(board), null];
   }
   if (isGameOver(board)) {
-    return [winner(board) ? 150 + depth : -150 - depth, null];
+    return [winner(board) ? 9999999 + depth : -9999999 - depth, null];
   }
   const boardMemory = memory.get(board.hash)
   let lastBestMove = null;
@@ -282,12 +430,12 @@ function iterativeDeepening(board, maxTime, evalFunction=evaluation) {
       bestEval = currentEval;
       bestMove = currentMove;
       maxDepth = depth;
-      if (Math.abs(bestEval) > 140) return [bestEval, bestMove];
+      if (Math.abs(bestEval) > 9999999) return [bestEval, bestMove];
     }
   } catch (error) {
       if (error.message !== "Timeout") throw error;
   }
-  console.log(maxDepth);
+  console.log(maxDepth, bestEval);
   console.profileEnd("Iterative")
   return [bestEval, bestMove];
 }
@@ -309,6 +457,12 @@ export const botList = {
   "Bot #3": (board, maxTime) => {
     const startTime = Date.now();
     const move = iterativeDeepening(board, maxTime, evaluationCasesMap)[1];
+    return [move >> 8, move & 255];
+  },
+
+  "Bot #4": (board, maxTime) => {
+    const startTime = Date.now();
+    const move = iterativeDeepening(board, maxTime, evalVirtualMap)[1];
     return [move >> 8, move & 255];
   },
 }
