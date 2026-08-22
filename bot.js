@@ -386,7 +386,7 @@ function emptyProximity(squares) {
         if (colorTouched >= 2) break;
       }
     }
-    if (colorTouched >= 2) continue;
+    if (colorTouched < 2) continue;
 
     let minBlueR = 10;
     for (let j = 0; j < blueRocksCount; j++) {
@@ -436,14 +436,14 @@ function piecesProximity() {
       const piecesDist = DIST_TABLE[square + redScissors[j]];
       if (piecesDist < min) min = piecesDist;
     }
-    score -= min * 1.2;
+    score += (10 - min) * 3;
 
     min = 10;
     for (let j = 0; j < blueScissorsCount; j++) {
       const piecesDist = DIST_TABLE[square + blueScissors[j]];
       if (piecesDist < min) min = piecesDist;
     }
-    score -= min;
+    score += 10 - min;
   }
 
   // Blue Papers
@@ -454,14 +454,14 @@ function piecesProximity() {
       const piecesDist = DIST_TABLE[square + redRocks[j]];
       if (piecesDist < min) min = piecesDist;
     }
-    score -= min * 1.2;
+    score += (10 - min) * 3;
 
     min = 10;
     for (let j = 0; j < blueRocksCount; j++) {
       const piecesDist = DIST_TABLE[square + blueRocks[j]];
       if (piecesDist < min) min = piecesDist;
     }
-    score -= min;
+    score += 10 - min;
   }
 
   // Blue Scissors
@@ -472,14 +472,14 @@ function piecesProximity() {
       const piecesDist = DIST_TABLE[square + redPapers[j]];
       if (piecesDist < min) min = piecesDist;
     }
-    score -= min * 1.2;
+    score += (10 - min) * 3;
 
     min = 10;
     for (let j = 0; j < bluePapersCount; j++) {
       const piecesDist = DIST_TABLE[square + bluePapers[j]];
       if (piecesDist < min) min = piecesDist;
     }
-    score -= min;
+    score += 10 - min;
   }
 
   // Red Rocks
@@ -490,14 +490,14 @@ function piecesProximity() {
       const piecesDist = DIST_TABLE[square + blueScissors[j]];
       if (piecesDist < min) min = piecesDist;
     }
-    score += min * 1.2;
+    score -= (10 - min) * 3;
 
     min = 10;
     for (let j = 0; j < redScissorsCount; j++) {
       const piecesDist = DIST_TABLE[square + redScissors[j]];
       if (piecesDist < min) min = piecesDist;
     }
-    score += min;
+    score -= 10 - min;
   }
 
   // Red Papers
@@ -508,14 +508,14 @@ function piecesProximity() {
       const piecesDist = DIST_TABLE[square + blueRocks[j]];
       if (piecesDist < min) min = piecesDist;
     }
-    score += min * 1.2;
+    score -= (10 - min) * 3;
 
     min = 10;
     for (let j = 0; j < redRocksCount; j++) {
       const piecesDist = DIST_TABLE[square + redRocks[j]];
       if (piecesDist < min) min = piecesDist;
     }
-    score += min;
+    score -= 10 - min;
   }
 
   // Red Scissors
@@ -526,14 +526,14 @@ function piecesProximity() {
       const piecesDist = DIST_TABLE[square + bluePapers[j]];
       if (piecesDist < min) min = piecesDist;
     }
-    score += min * 1.2;
+    score -= (10 - min) * 3;
 
     min = 10;
     for (let j = 0; j < redPapersCount; j++) {
       const piecesDist = DIST_TABLE[square + redPapers[j]];
       if (piecesDist < min) min = piecesDist;
     }
-    score += min;
+    score -=  10 - min;
   }
   return score;
 }
