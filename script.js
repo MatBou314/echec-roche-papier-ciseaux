@@ -1,6 +1,6 @@
 import { newBoard, play } from "./board.js"
 import { setUpBoard, changePanel, mainAffBoard, nextTurn, cancelAllBotRequests, getBotMove, newAffBoard } from "./boardGestion.js";
-import { botList } from "./bot.js";
+import { botList } from "./allBots.js";
 
 const modes = {
   jvj: "play in person",

@@ -36,7 +36,7 @@ function getCaseContour(caseIdx) {
   return casesContour.filter(idx => (idx >= 0 && idx < 81))
 }
 
-const casesContour = {};
+export const casesContour = new Array(81);
 
 for (let i = 0; i < 81; i++) {
   casesContour[i] = getCaseContour(i);

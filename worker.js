@@ -1,4 +1,4 @@
-import { botList } from "./bot.js";
+import { botList } from "./allBots.js";
 
 self.onmessage = function(event) {
     const { botId, board, maxTime, requestId} = event.data;

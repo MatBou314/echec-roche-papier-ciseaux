@@ -1,5 +1,6 @@
 import { newBoard, isLegal, getCasesCount, play, UndoMove, isGameOver, winner } from "./board.js";
-import { randomMove, botList } from "./bot.js"
+import { randomMove} from "./bot.js";
+import { botList } from "./allBots.js";
 
 const piecesName = [null, "rock", "paper", "scissors"];
 const colsName = ["a", "b", "c", "d", "e", "f", "g", "h", "i"];
