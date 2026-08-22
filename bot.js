@@ -436,7 +436,7 @@ function piecesProximity() {
       const piecesDist = DIST_TABLE[square + redScissors[j]];
       if (piecesDist < min) min = piecesDist;
     }
-    score += (10 - min) * 3;
+    score += (10 - min) * 4;
 
     min = 10;
     for (let j = 0; j < blueScissorsCount; j++) {
@@ -454,7 +454,7 @@ function piecesProximity() {
       const piecesDist = DIST_TABLE[square + redRocks[j]];
       if (piecesDist < min) min = piecesDist;
     }
-    score += (10 - min) * 3;
+    score += (10 - min) * 4;
 
     min = 10;
     for (let j = 0; j < blueRocksCount; j++) {
@@ -472,7 +472,7 @@ function piecesProximity() {
       const piecesDist = DIST_TABLE[square + redPapers[j]];
       if (piecesDist < min) min = piecesDist;
     }
-    score += (10 - min) * 3;
+    score += (10 - min) * 4;
 
     min = 10;
     for (let j = 0; j < bluePapersCount; j++) {
@@ -490,7 +490,7 @@ function piecesProximity() {
       const piecesDist = DIST_TABLE[square + blueScissors[j]];
       if (piecesDist < min) min = piecesDist;
     }
-    score -= (10 - min) * 3;
+    score -= (10 - min) * 4;
 
     min = 10;
     for (let j = 0; j < redScissorsCount; j++) {
@@ -508,7 +508,7 @@ function piecesProximity() {
       const piecesDist = DIST_TABLE[square + blueRocks[j]];
       if (piecesDist < min) min = piecesDist;
     }
-    score -= (10 - min) * 3;
+    score -= (10 - min) * 4;
 
     min = 10;
     for (let j = 0; j < redRocksCount; j++) {
@@ -526,7 +526,7 @@ function piecesProximity() {
       const piecesDist = DIST_TABLE[square + bluePapers[j]];
       if (piecesDist < min) min = piecesDist;
     }
-    score -= (10 - min) * 3;
+    score -= (10 - min) * 4;
 
     min = 10;
     for (let j = 0; j < redPapersCount; j++) {
