@@ -162,12 +162,38 @@ function playHash(board, from, to) {
       }
   }
 
+  if (fromPiece === 1) {
+        const idx = blueRocks.indexOf(from);
+        blueRocks[idx] = to;
+  }
+  else if (fromPiece === 2) {
+    const idx = bluePapers.indexOf(from);
+    bluePapers[idx] = to;
+  }
+  else if (fromPiece === 3) {
+    const idx = blueScissors.indexOf(from);
+    blueScissors[idx] = to;
+  }
+  else if (fromPiece === -1) {
+        const idx = redRocks.indexOf(from);
+        redRocks[idx] = to;
+  }
+  else if (fromPiece === -2) {
+    const idx = redPapers.indexOf(from);
+    redPapers[idx] = to;
+  }
+  else {
+    const idx = redScissors.indexOf(from);
+    redScissors[idx] = to;
+  }
+
   if (toCase === 0) {
     if (fromPiece > 0) {
       blueSquaresCount++;
       board.cases[to] = 1;
       hash ^= zobristCases[toZorbC + 2];
       blueSquaresValue += SQUAREVALUE[to];
+
     } else {
       redSquaresCount++;
       board.cases[to] = -1;
@@ -208,6 +234,7 @@ function UndoHash(board, from, to) {
     if (toPiece === 1) blueRocks[blueRocksCount++] = to;
     else if (toPiece === 2) bluePapers[bluePapersCount++] = to;
     else blueScissors[blueScissorsCount++] = to;
+
   }
   else if (toPiece < 0) {
     redPiecesCount++; 
@@ -215,6 +242,32 @@ function UndoHash(board, from, to) {
     else if (toPiece === -2) redPapers[redPapersCount++] = to;
     else redScissors[redScissorsCount++] = to;
   }
+
+  if (fromPiece === 1) {
+        const idx = blueRocks.indexOf(to);
+        blueRocks[idx] = from;
+  }
+  else if (fromPiece === 2) {
+    const idx = bluePapers.indexOf(to);
+    bluePapers[idx] = from;
+  }
+  else if (fromPiece === 3) {
+    const idx = blueScissors.indexOf(to);
+    blueScissors[idx] = from;
+  }
+  else if (fromPiece === -1) {
+        const idx = redRocks.indexOf(to);
+        redRocks[idx] = from;
+  }
+  else if (fromPiece === -2) {
+    const idx = redPapers.indexOf(to);
+    redPapers[idx] = from;
+  }
+  else {
+    const idx = redScissors.indexOf(to);
+    redScissors[idx] = from;
+  }
+
 
   board.cases[to] = toCase;
   pieces[to] = toPiece;
@@ -511,7 +564,17 @@ function evalBasiquePlus(board) {
 }
 
 function evalTotale(board) {
+  if (blueSquaresCount >= 41) return 200 + imbalance() * 42 + emptyProximity(board.cases) * 8 + blueSquaresCount + redSquaresCount + piecesProximity() * 3;
+  if (redSquaresCount >= 41) return -200 + imbalance() * 42 + emptyProximity(board.cases) * 8 - blueSquaresCount - redSquaresCount + piecesProximity() * 3;
   return imbalance() * 40 + emptyProximity(board.cases) * 2 + (blueSquaresValue - redSquaresValue) + piecesProximity();
+}
+
+function evalAgressive(board) {
+  if (blueSquaresCount >= 41) return 200 + imbalance() * 45 + emptyProximity(board.cases) * 2 + blueSquaresCount + redSquaresCount + piecesProximity() * 4;
+  if (redSquaresCount >= 41) return -200 + imbalance() * 45 + emptyProximity(board.cases) * 2 - blueSquaresCount - redSquaresCount + piecesProximity() * 4;
+  const imbalanceScore = imbalance();
+  if (imbalanceScore !== 0) return imbalanceScore * 43 + emptyProximity(board.cases) * 2 + (blueSquaresValue - redSquaresValue) + piecesProximity() * 6;
+  return imbalanceScore * 43 + emptyProximity(board.cases) * 2 + (blueSquaresValue - redSquaresValue) + piecesProximity() * 3;
 }
 
 function evaluationCasesMap(board) {
