@@ -71,21 +71,6 @@ export function getMoves(board) {
   return moves;
 }
 
-export function getMovesEncode(board) {
-  const pieces = board.pieces;
-  const turn = board.turn;
-  let moves = [];
-  for (let fromIdx = 0; fromIdx < 81; fromIdx++) {
-    const piece = pieces[fromIdx];
-    if (piece === 0) continue;
-    if (piece > 0 !== turn) continue;
-    for (const toIdx of casesContour[fromIdx]) {
-      if (canPieceGo(pieces, piece, toIdx)) moves.push(fromIdx << 8 | toIdx);
-    }
-  }
-  return moves;
-}
-
 function canPieceGo(pieces, piece, toIdx) {
   const toPiece = pieces[toIdx];
   if (toPiece === 0) return true;

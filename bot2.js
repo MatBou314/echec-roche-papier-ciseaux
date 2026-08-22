@@ -1,4 +1,4 @@
-import { play, getMoves, UndoMove, isGameOver, winner, getMovesEncode } from "./board.js";
+import { play, getMoves, UndoMove, isGameOver, winner } from "./board.js";
 
 function rand64() {
   const high = BigInt(Math.floor(Math.random() * 0xFFFFFFFF));
