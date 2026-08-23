@@ -811,7 +811,7 @@ function iterativeDeepening(board, maxTime) {
 // ---------------------------------------------------------------
 // EXPORT — même interface que les autres bots : (board, maxTime) => [from, to]
 // ---------------------------------------------------------------
-export const botList3 = {
+export const botListClaude = {
   "Claude Bot": (board, maxTime) => {
     const [, move] = iterativeDeepening(board, maxTime);
     return [move >> 8, move & 255];

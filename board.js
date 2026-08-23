@@ -36,10 +36,29 @@ function getCaseContour(caseIdx) {
   return casesContour.filter(idx => (idx >= 0 && idx < 81))
 }
 
-export const casesContour = new Array(81);
+function getCasesContourNoDiagonal(caseIdx) {
+  let casesContour = [];
+  const isLeft = ((caseIdx % 9) === 0);
+  const isRight = ((caseIdx % 9) === 8);
+  if (!isLeft) {
+    casesContour.push(caseIdx - 1);
+  }
+  if (!isRight) {
+    casesContour.push(caseIdx + 1);
+  }
+  casesContour.push(caseIdx - 9);
+  casesContour.push(caseIdx + 9);
+  return casesContour.filter(idx => (idx >= 0 && idx < 81))
+}
 
+export const casesContour = new Array(81);
 for (let i = 0; i < 81; i++) {
   casesContour[i] = getCaseContour(i);
+}
+
+export const casesContourNoDiagonal = new Array(81);
+for (let i = 0; i < 81; i++) {
+  casesContourNoDiagonal[i] = getCasesContourNoDiagonal(i);
 }
 
 export function newBoard() {
