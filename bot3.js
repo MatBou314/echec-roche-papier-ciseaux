@@ -917,7 +917,7 @@ function iterativeDeepening(board, maxTime, evalFunction=evaluation) {
   }
   totNode += nodeCount;
   computedMoves++;
-  console.log(`B ${evalFunction.name} (${board.turn ? "blue" : "red"}):
+  console.log(`C ${evalFunction.name} (${board.turn ? "blue" : "red"}):
   depth: ${maxDepth}
   eval ${bestEval}
   nodeCount: ${nodeCount}
