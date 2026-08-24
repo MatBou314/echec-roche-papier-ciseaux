@@ -510,16 +510,7 @@ const SQUAREVALUE = new Uint8Array([
   30, 31, 32, 33, 34, 36, 34, 34, 34,
 ]);
 
-function imbalance() {
-  const bluePower = (blueRocksCount * (5 + redScissorsCount - redPapersCount) 
-                    + bluePapersCount * (5 + redRocksCount - redScissorsCount) 
-                    + blueScissorsCount * (5 + redPapersCount - redRocksCount));
 
-  const redPower = (redRocksCount * (5 + blueScissorsCount - bluePapersCount) 
-                    + redPapersCount * (5 + blueRocksCount - blueScissorsCount) 
-                    + redScissorsCount * (5 + bluePapersCount - blueRocksCount));
-  return bluePower - redPower;
-}
 
 function emptyProximity() {
   let score = 0;
@@ -567,125 +558,256 @@ function emptyProximity() {
   }
   return score;
 }
+function imbalance2() {
+  const bluePower = (blueRocksCount * (5 + redScissorsCount - redPapersCount) 
+                    + bluePapersCount * (5 + redRocksCount - redScissorsCount) 
+                    + blueScissorsCount * (5 + redPapersCount - redRocksCount));
 
-function piecesProximity(attackFactor=1) {
-  let score = 0;
-  let min = 10;
+  const redPower = (redRocksCount * (5 + blueScissorsCount - bluePapersCount) 
+                    + redPapersCount * (5 + blueRocksCount - blueScissorsCount) 
+                    + redScissorsCount * (5 + bluePapersCount - blueRocksCount));
+  return bluePower - redPower;
+}
 
+function imbalance() {
+  const idx = (blueRocksCount << 10) | (bluePapersCount << 8) | (blueScissorsCount << 6) | (redRocksCount << 4) | (redPapersCount << 2) | redScissorsCount;
+  return MATERIAL_TABLE[idx];
+}
+
+function minimaxMaterial(bR, bP, bS, rR, rP, rS, turn) {
+  let bestEval = turn ? -Infinity : Infinity;
+  if (turn) {
+    if (bR > 0 && rS > 0) {
+      const moveEval = minimaxMaterial(bR, bP, bS, rR, rP, rS-1, !turn)
+      if (moveEval > bestEval) bestEval = moveEval;
+    }
+    if (bP > 0 && rR > 0) {
+      const moveEval = minimaxMaterial(bR, bP, bS, rR-1, rP, rS, !turn)
+      if (moveEval > bestEval) bestEval = moveEval;
+    }
+    if (bS > 0 && rP > 0) {
+      const moveEval = minimaxMaterial(bR, bP, bS, rR, rP-1, rS, !turn)
+      if (moveEval > bestEval) bestEval = moveEval;
+    }
+  } else {
+    if (rR > 0 && bS > 0) {
+      const moveEval = minimaxMaterial(bR, bP, bS-1, rR, rP, rS, !turn)
+      if (moveEval < bestEval) bestEval = moveEval;
+    }
+    if (rP > 0 && bR > 0) {
+      const moveEval = minimaxMaterial(bR-1, bP, bS, rR, rP, rS, !turn)
+      if (moveEval < bestEval) bestEval = moveEval;
+    }
+    if (rS > 0 && bP > 0) {
+      const moveEval = minimaxMaterial(bR, bP-1, bS, rR, rP, rS, !turn)
+      if (moveEval < bestEval) bestEval = moveEval;
+    }
+  }
+  if (bestEval === (turn ? -Infinity : Infinity)) {
+    return bR + bP + bS - rR - rP - rS;
+  }
+  return bestEval;
+}
+
+const MATERIAL_TABLE = new Int8Array(4096);
+function initMaterialTable() {
+  for (let bR = 0; bR <= 3; bR++) {
+    for (let bP = 0; bP <= 3; bP++) {
+      for (let bS = 0; bS <= 3; bS++) {
+        for (let rR = 0; rR <= 3; rR++) {
+          for (let rP = 0; rP <= 3; rP++) {
+            for (let rS = 0; rS <= 3; rS++) {
+              const scoreBlueFirst = minimaxMaterial(bR, bP, bS, rR, rP, rS, true);
+              const scoreRedFirst = minimaxMaterial(bR, bP, bS, rR, rP, rS, false);
+              const finalScore = (scoreBlueFirst + scoreRedFirst) / 2;
+              const index = (bR << 10) | (bP << 8) | (bS << 6) | (rR << 4) | (rP << 2) | rS;
+              MATERIAL_TABLE[index] = Math.round(finalScore * 40);
+            }
+          }
+        }
+      }
+    }
+  }
+}
+initMaterialTable();
+
+function piecesProximity(blueAtkFactor=2, redAtkFactor=2) {
+  let blueAtkSum = 0, blueAtkCount = 0;
+  let blueDefSum = 0, blueDefCount = 0;
+
+  let redAtkSum = 0, redAtkCount = 0;
+  let redDefSum = 0, redDefCount = 0;
+
+  // ================= BLEUS =================
+  
   // Blue Rocks
   for (let i = 0; i < blueRocksCount; i++) {
-    const square = blueRocks[i] * 81;
-    min = 10;
-    for (let j = 0; j < redScissorsCount; j++) {
-      const piecesDist = DIST_TABLE[square + redScissors[j]];
-      if (piecesDist < min) min = piecesDist;
+    const sq = blueRocks[i] * 81;
+    
+    if (redScissorsCount > 0) {
+      let minAtk = 10;
+      for (let j = 0; j < redScissorsCount; j++) {
+        const d = DIST_TABLE[sq + redScissors[j]];
+        if (d < minAtk) minAtk = d;
+      }
+      blueAtkSum += 10 - minAtk;
+      blueAtkCount++;
     }
-    score += (10 - min) * 4 * attackFactor;
 
-    min = 10;
-    for (let j = 0; j < blueScissorsCount; j++) {
-      const piecesDist = DIST_TABLE[square + blueScissors[j]];
-      if (piecesDist < min) min = piecesDist;
+    if (blueScissorsCount > 0) {
+      let minDef = 10;
+      for (let j = 0; j < blueScissorsCount; j++) {
+        const d = DIST_TABLE[sq + blueScissors[j]];
+        if (d < minDef) minDef = d;
+      }
+      blueDefSum += 10 - minDef;
+      blueDefCount++;
     }
-    score += 10 - min;
   }
 
   // Blue Papers
   for (let i = 0; i < bluePapersCount; i++) {
-    const square = bluePapers[i] * 81;
-    min = 10;
-    for (let j = 0; j < redRocksCount; j++) {
-      const piecesDist = DIST_TABLE[square + redRocks[j]];
-      if (piecesDist < min) min = piecesDist;
-    }
-    score += (10 - min) * 4 * attackFactor;
+    const sq = bluePapers[i] * 81;
 
-    min = 10;
-    for (let j = 0; j < blueRocksCount; j++) {
-      const piecesDist = DIST_TABLE[square + blueRocks[j]];
-      if (piecesDist < min) min = piecesDist;
+    if (redRocksCount > 0) {
+      let minAtk = 10;
+      for (let j = 0; j < redRocksCount; j++) {
+        const d = DIST_TABLE[sq + redRocks[j]];
+        if (d < minAtk) minAtk = d;
+      }
+      blueAtkSum += 10 - minAtk;
+      blueAtkCount++;
     }
-    score += 10 - min;
+
+    if (blueRocksCount > 0) {
+      let minDef = 10;
+      for (let j = 0; j < blueRocksCount; j++) {
+        const d = DIST_TABLE[sq + blueRocks[j]];
+        if (d < minDef) minDef = d;
+      }
+      blueDefSum += 10 - minDef;
+      blueDefCount++;
+    }
   }
 
   // Blue Scissors
   for (let i = 0; i < blueScissorsCount; i++) {
-    const square = blueScissors[i] * 81;
-    min = 10;
-    for (let j = 0; j < redPapersCount; j++) {
-      const piecesDist = DIST_TABLE[square + redPapers[j]];
-      if (piecesDist < min) min = piecesDist;
-    }
-    score += (10 - min) * 4 * attackFactor;
+    const sq = blueScissors[i] * 81;
 
-    min = 10;
-    for (let j = 0; j < bluePapersCount; j++) {
-      const piecesDist = DIST_TABLE[square + bluePapers[j]];
-      if (piecesDist < min) min = piecesDist;
+    if (redPapersCount > 0) {
+      let minAtk = 10;
+      for (let j = 0; j < redPapersCount; j++) {
+        const d = DIST_TABLE[sq + redPapers[j]];
+        if (d < minAtk) minAtk = d;
+      }
+      blueAtkSum += 10 - minAtk;
+      blueAtkCount++;
     }
-    score += 10 - min;
+
+    if (bluePapersCount > 0) {
+      let minDef = 10;
+      for (let j = 0; j < bluePapersCount; j++) {
+        const d = DIST_TABLE[sq + bluePapers[j]];
+        if (d < minDef) minDef = d;
+      }
+      blueDefSum += 10 - minDef;
+      blueDefCount++;
+    }
   }
+
+  // ================= ROUGES =================
 
   // Red Rocks
   for (let i = 0; i < redRocksCount; i++) {
-    const square = redRocks[i] * 81;
-    min = 10;
-    for (let j = 0; j < blueScissorsCount; j++) {
-      const piecesDist = DIST_TABLE[square + blueScissors[j]];
-      if (piecesDist < min) min = piecesDist;
-    }
-    score -= (10 - min) * 4 * attackFactor;
+    const sq = redRocks[i] * 81;
 
-    min = 10;
-    for (let j = 0; j < redScissorsCount; j++) {
-      const piecesDist = DIST_TABLE[square + redScissors[j]];
-      if (piecesDist < min) min = piecesDist;
+    if (blueScissorsCount > 0) {
+      let minAtk = 10;
+      for (let j = 0; j < blueScissorsCount; j++) {
+        const d = DIST_TABLE[sq + blueScissors[j]];
+        if (d < minAtk) minAtk = d;
+      }
+      redAtkSum += 10 - minAtk;
+      redAtkCount++;
     }
-    score -= 10 - min;
+
+    if (redScissorsCount > 0) {
+      let minDef = 10;
+      for (let j = 0; j < redScissorsCount; j++) {
+        const d = DIST_TABLE[sq + redScissors[j]];
+        if (d < minDef) minDef = d;
+      }
+      redDefSum += 10 - minDef;
+      redDefCount++;
+    }
   }
 
   // Red Papers
   for (let i = 0; i < redPapersCount; i++) {
-    const square = redPapers[i] * 81;
-    min = 10;
-    for (let j = 0; j < blueRocksCount; j++) {
-      const piecesDist = DIST_TABLE[square + blueRocks[j]];
-      if (piecesDist < min) min = piecesDist;
-    }
-    score -= (10 - min) * 4 * attackFactor;
+    const sq = redPapers[i] * 81;
 
-    min = 10;
-    for (let j = 0; j < redRocksCount; j++) {
-      const piecesDist = DIST_TABLE[square + redRocks[j]];
-      if (piecesDist < min) min = piecesDist;
+    if (blueRocksCount > 0) {
+      let minAtk = 10;
+      for (let j = 0; j < blueRocksCount; j++) {
+        const d = DIST_TABLE[sq + blueRocks[j]];
+        if (d < minAtk) minAtk = d;
+      }
+      redAtkSum += 10 - minAtk;
+      redAtkCount++;
     }
-    score -= 10 - min;
+
+    if (redRocksCount > 0) {
+      let minDef = 10;
+      for (let j = 0; j < redRocksCount; j++) {
+        const d = DIST_TABLE[sq + redRocks[j]];
+        if (d < minDef) minDef = d;
+      }
+      redDefSum += 10 - minDef;
+      redDefCount++;
+    }
   }
 
   // Red Scissors
   for (let i = 0; i < redScissorsCount; i++) {
-    const square = redScissors[i] * 81;
-    min = 10;
-    for (let j = 0; j < bluePapersCount; j++) {
-      const piecesDist = DIST_TABLE[square + bluePapers[j]];
-      if (piecesDist < min) min = piecesDist;
-    }
-    score -= (10 - min) * 4 * attackFactor;
+    const sq = redScissors[i] * 81;
 
-    min = 10;
-    for (let j = 0; j < redPapersCount; j++) {
-      const piecesDist = DIST_TABLE[square + redPapers[j]];
-      if (piecesDist < min) min = piecesDist;
+    if (bluePapersCount > 0) {
+      let minAtk = 10;
+      for (let j = 0; j < bluePapersCount; j++) {
+        const d = DIST_TABLE[sq + bluePapers[j]];
+        if (d < minAtk) minAtk = d;
+      }
+      redAtkSum += 10 - minAtk;
+      redAtkCount++;
     }
-    score -=  10 - min;
+
+    if (redPapersCount > 0) {
+      let minDef = 10;
+      for (let j = 0; j < redPapersCount; j++) {
+        const d = DIST_TABLE[sq + redPapers[j]];
+        if (d < minDef) minDef = d;
+      }
+      redDefSum += 10 - minDef;
+      redDefCount++;
+    }
   }
-  return score;
+
+  const blueAvgAtk = blueAtkCount > 0 ? (blueAtkSum / blueAtkCount) : 0;
+  const blueAvgDef = blueDefCount > 0 ? (blueDefSum / blueDefCount) : 0;
+
+  const redAvgAtk  = redAtkCount > 0  ? (redAtkSum / redAtkCount)   : 0;
+  const redAvgDef  = redDefCount > 0  ? (redDefSum / redDefCount)   : 0;
+
+  const blueScore = (blueAvgAtk * 2 * blueAtkFactor + blueAvgDef)/(blueAtkFactor + 1);
+  const redScore  = (redAvgAtk * 2 * redAtkFactor  + redAvgDef)/(redAtkFactor + 1);
+
+  return blueScore - redScore;
 }
 
 function evalTotale() {
   if (blueSquaresCount >= 41) return 200 + imbalance() * 42 + emptyProximity() * 8 + blueSquaresCount + redSquaresCount + piecesProximity(2) * 3;
   if (redSquaresCount >= 41) return -200 + imbalance() * 42 + emptyProximity() * 8 - blueSquaresCount - redSquaresCount + piecesProximity(2) * 3;
-  return imbalance() * 40 + emptyProximity() * 2 + (blueSquaresValue - redSquaresValue) + piecesProximity();
+  return imbalance() * 5 + emptyProximity() * 2 + (blueSquaresValue - redSquaresValue) + piecesProximity() * 5;
 }
 
 let memory = new Map();
@@ -893,10 +1015,10 @@ function orderMoves(moves,  bestMove) {
 let totNode = 0;
 let computedMoves = 0;
 
-function iterativeDeepening(board, maxTime, evalFunction=evaluation) {
+function iterativeDeepening(board, maxTime, evalFunction = evaluation) {
   console.profile("Iterative");
-  timeLimit = maxTime
-  startTime = Date.now()
+  timeLimit = maxTime;
+  startTime = Date.now();
   let bestMove = null;
   let bestEval = null;
   let maxDepth = 0;
@@ -928,8 +1050,8 @@ function iterativeDeepening(board, maxTime, evalFunction=evaluation) {
   return [bestEval, bestMove];
 }
 
-export const botList3 = {
-  "Bot C1": (board, maxTime) => {
+export const botList4 = {
+  "Bot D1": (board, maxTime) => {
     const move = iterativeDeepening(board, maxTime, evalTotale)[1];
     return [move >> 8, move & 255];
   },
