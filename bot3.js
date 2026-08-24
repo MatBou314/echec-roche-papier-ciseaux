@@ -497,6 +497,7 @@ function dist(idx1, idx2) {
   return Math.max(Math.abs((idx1 % 9) - (idx2 % 9)), Math.abs(Math.floor(idx1/9) - Math.floor(idx2/9)));
 }
 
+
 const SQUAREVALUE = new Uint8Array([
   30, 31, 32, 33, 34, 36, 34, 34, 34,
   30, 31, 32, 34, 36, 35, 35, 35, 35, 
