@@ -894,7 +894,7 @@ let totNode = 0;
 let computedMoves = 0;
 
 function iterativeDeepening(board, maxTime, evalFunction=evaluation) {
-  console.profile("Iterative");
+  //console.profile("Iterative");
   timeLimit = maxTime
   startTime = Date.now()
   let bestMove = null;
@@ -924,7 +924,7 @@ function iterativeDeepening(board, maxTime, evalFunction=evaluation) {
   nodeCount: ${nodeCount}
   meanNode: ${totNode/computedMoves}
   `);
-  console.profileEnd("Iterative")
+  //console.profileEnd("Iterative")
   return [bestEval, bestMove];
 }
 
