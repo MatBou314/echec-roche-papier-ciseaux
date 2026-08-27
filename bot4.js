@@ -512,52 +512,100 @@ const SQUAREVALUE = new Uint8Array([
 
 
 
-function emptyProximity() {
+function potentialTerritory2() {
   let score = 0;
+
   for (let i = 0; i < 81; i++) {
     if (squares[i] !== 0) continue;
+    /*
     let colorTouched = false;
     const contour = casesContourNoDiagonal[i];
     for (let j = 0; j < contour.length; j++) {
       if (squares[contour[j]] !== 0) { colorTouched = true; break; }
     }
     if (!colorTouched) continue;
+   */
+    let minBlue = 10;
 
-    let minBlueR = 10;
     for (let j = 0; j < blueRocksCount; j++) {
       const pieceDist = DIST_TABLE[81 * i + blueRocks[j]];
-      if (pieceDist < minBlueR) minBlueR = pieceDist;
+      if (pieceDist < minBlue) minBlue = pieceDist;
     }
-    let minBlueP = 10;
     for (let j = 0; j < bluePapersCount; j++) {
       const pieceDist = DIST_TABLE[81 * i + bluePapers[j]];
-      if (pieceDist < minBlueP) minBlueP = pieceDist;
+      if (pieceDist < minBlue) minBlue = pieceDist;
     }
-    let minBlueS = 10;
     for (let j = 0; j < blueScissorsCount; j++) {
       const pieceDist = DIST_TABLE[81 * i + blueScissors[j]];
-      if (pieceDist < minBlueS) minBlueS = pieceDist;
+      if (pieceDist < minBlue) minBlue = pieceDist;
     }
 
-    let minRedR = 10;
+    let minRed = 10;
     for (let j = 0; j < redRocksCount; j++) {
       const pieceDist = DIST_TABLE[81 * i + redRocks[j]];
-      if (pieceDist < minRedR) minRedR = pieceDist;
+      if (pieceDist < minRed) minRed = pieceDist;
     }
-    let minRedP = 10;
+  
     for (let j = 0; j < redPapersCount; j++) {
       const pieceDist = DIST_TABLE[81 * i + redPapers[j]];
-      if (pieceDist < minRedP) minRedP = pieceDist;
+      if (pieceDist < minRed) minRed = pieceDist;
     }
-    let minRedS = 10;
+
     for (let j = 0; j < redScissorsCount; j++) {
       const pieceDist = DIST_TABLE[81 * i + redScissors[j]];
-      if (pieceDist < minRedS) minRedS = pieceDist;
+      if (pieceDist < minRed) minRed = pieceDist;
     }
-    score += minRedR + minRedP + minRedS - minBlueR - minBlueP - minBlueS;
+    if (minBlue < minRed) score += 10;
+    else if (minBlue === minRed) score += turn ? 10 : -10;
+    else score -= 10;
   }
   return score;
 }
+
+
+const flatBlue = new Uint8Array(9);
+const flatRed = new Uint8Array(9);
+
+function potentialTerritory() {
+  let bCount = 0;
+  for (let j = 0; j < blueRocksCount; j++) flatBlue[bCount++] = blueRocks[j];
+  for (let j = 0; j < bluePapersCount; j++) flatBlue[bCount++] = bluePapers[j];
+  for (let j = 0; j < blueScissorsCount; j++) flatBlue[bCount++] = blueScissors[j];
+
+  let rCount = 0;
+  for (let j = 0; j < redRocksCount; j++) flatRed[rCount++] = redRocks[j];
+  for (let j = 0; j < redPapersCount; j++) flatRed[rCount++] = redPapers[j];
+  for (let j = 0; j < redScissorsCount; j++) flatRed[rCount++] = redScissors[j];
+
+  let score = 0;
+  
+  for (let i = 0; i < 81; i++) {
+    if (squares[i] !== 0) continue;
+    
+    const offset = i * 81;
+    let minBlue = 10;
+    let minRed = 10;
+
+    for (let j = 0; j < bCount; j++) {
+      const pieceDist = DIST_TABLE[offset + flatBlue[j]];
+      if (pieceDist < minBlue) minBlue = pieceDist;
+    }
+
+    for (let j = 0; j < rCount; j++) {
+      const pieceDist = DIST_TABLE[offset + flatRed[j]];
+      if (pieceDist < minRed) minRed = pieceDist;
+    }
+
+    if (minBlue < minRed) score += 8;
+    else if (minBlue === minRed) score += turn ? 8 : -8;
+    else score -= 8;
+    score += (minRed - minBlue) * 0.1
+  }
+  
+  return score;
+}
+
+
 function imbalance2() {
   const bluePower = (blueRocksCount * (5 + redScissorsCount - redPapersCount) 
                     + bluePapersCount * (5 + redRocksCount - redScissorsCount) 
@@ -609,7 +657,7 @@ function minimaxMaterial(bR, bP, bS, rR, rP, rS, turn) {
   return bestEval;
 }
 
-const MATERIAL_TABLE = new Int8Array(4096);
+const MATERIAL_TABLE = new Int16Array(4096);
 function initMaterialTable() {
   for (let bR = 0; bR <= 3; bR++) {
     for (let bP = 0; bP <= 3; bP++) {
@@ -621,7 +669,7 @@ function initMaterialTable() {
               const scoreRedFirst = minimaxMaterial(bR, bP, bS, rR, rP, rS, false);
               const finalScore = (scoreBlueFirst + scoreRedFirst) / 2;
               const index = (bR << 10) | (bP << 8) | (bS << 6) | (rR << 4) | (rP << 2) | rS;
-              MATERIAL_TABLE[index] = Math.round(finalScore * 40);
+              MATERIAL_TABLE[index] = Math.round(finalScore * 220);
             }
           }
         }
@@ -805,9 +853,10 @@ function piecesProximity(blueAtkFactor=2, redAtkFactor=2) {
 }
 
 function evalTotale() {
-  if (blueSquaresCount >= 41) return 200 + imbalance() * 42 + emptyProximity() * 8 + blueSquaresCount + redSquaresCount + piecesProximity(2) * 3;
-  if (redSquaresCount >= 41) return -200 + imbalance() * 42 + emptyProximity() * 8 - blueSquaresCount - redSquaresCount + piecesProximity(2) * 3;
-  return imbalance() * 5 + emptyProximity() * 2 + (blueSquaresValue - redSquaresValue) + piecesProximity() * 5;
+  if (blueSquaresCount >= 41) return 879 + imbalance() * 4 + potentialTerritory() + blueSquaresCount + redSquaresCount + piecesProximity(4, 1.5) * 20;
+  if (redSquaresCount >= 41) return -879 + imbalance() * 4 + potentialTerritory() - blueSquaresCount - redSquaresCount + piecesProximity(1.5, 4) * 20;
+  //console.log(imbalance(), potentialTerritory(), (blueSquaresValue - redSquaresValue), piecesProximity() * 5)
+  return imbalance() * 3 + potentialTerritory() + (blueSquaresValue - redSquaresValue) + piecesProximity(4, 4) * 20;
 }
 
 let memory = new Map();
@@ -817,9 +866,19 @@ let startTime = 0;
 
 function minimaxMemory(depth, evalFunction, alpha = -Infinity, beta = Infinity) {
   if (depth <= 0) {
-    if (memToPiece[movePtr-1] === 0) return evalFunction();
+    if (memToPiece[movePtr-1] === 0) {
+      nodeCount++;
+      if ((nodeCount & 2047) === 0) {
+        if (Date.now() - startTime > timeLimit) throw new Error("Timeout");
+      }
+      return evalFunction();
+    }
   }
   if (isGameOverOpt()) {
+    nodeCount++;
+      if ((nodeCount & 2047) === 0) {
+        if (Date.now() - startTime > timeLimit) throw new Error("Timeout");
+      }
     return winner() ? 9999999 + depth : -9999999 - depth;
   }
   const boardMemory = memory.get(hash)
@@ -831,10 +890,6 @@ function minimaxMemory(depth, evalFunction, alpha = -Infinity, beta = Infinity) 
       if (boardMemory.flag === "UPPER" && boardMemory.eval <= alpha) return boardMemory.eval;
     }
   lastBestMove = boardMemory.move;
-  }
-  nodeCount++;
-  if ((nodeCount & 2047) === 0) {
-    if (Date.now() - startTime > timeLimit) throw new Error("Timeout");
   }
   let flag = "EXACT";
   const originAlpha = alpha;
@@ -1015,24 +1070,34 @@ function orderMoves(moves,  bestMove) {
 let totNode = 0;
 let computedMoves = 0;
 
+export let bestMove = null;
+export let bestEval = null;
+export let reachedDepth = 0;
 function iterativeDeepening(board, maxTime, evalFunction = evaluation) {
   //console.profile("Iterative");
   timeLimit = maxTime;
   startTime = Date.now();
   let bestMove = null;
   let bestEval = null;
-  let maxDepth = 0;
+  let reachedDepth = 0;
   initState(board);
   memory = new Map();
   movePtr = 0;
   nodeCount = 0;
+  //console.log(imbalance())
   try {
     for (let depth = 2; depth < 2048; depth++) {
       const [currentEval, currentMove] = getMinimax(depth, evalFunction, bestMove);
       bestEval = currentEval;
       bestMove = currentMove;
-      maxDepth = depth;
-      if (Math.abs(bestEval) > 9999999) return [bestEval, bestMove];
+      reachedDepth = depth;
+      postMessage({
+        type: "analysisUpdate",
+        depth: reachedDepth,
+        eval: Math.round(bestEval)/100,
+        move: `${currentMove >> 8} => ${currentMove & 255}`
+      });
+      if (Math.abs(bestEval) > 9999999) break;
       if (depth === 8) console.log(nodeCount, " nodes avant depth 8");
     }
   } catch (error) {
@@ -1040,9 +1105,9 @@ function iterativeDeepening(board, maxTime, evalFunction = evaluation) {
   }
   totNode += nodeCount;
   computedMoves++;
-  console.log(`C ${evalFunction.name} (${board.turn ? "blue" : "red"}):
-  depth: ${maxDepth}
-  eval ${bestEval}
+  console.log(`D ${evalFunction.name} (${board.turn ? "blue" : "red"}):
+  depth: ${reachedDepth}
+  eval ${Math.round(bestEval)/100}
   nodeCount: ${nodeCount}
   meanNode: ${totNode/computedMoves}
   `);

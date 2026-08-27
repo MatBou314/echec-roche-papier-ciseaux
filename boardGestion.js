@@ -11,10 +11,13 @@ const casesClass ={
   "-1": "color-case-rouge"
 }
 
+export const analysisInfo = { depth: 0, move:0, eval:0 }
+
 const PanelStructure = {
   jvj: [createBoardInfo, createNavArrows],
   jvb: [createBoardInfo, createBotPanel, createBotPause, createNavArrows],
-  bvb: [createBoardInfo, createBotPanel, createBotPanel, createBotPause, createNavArrows]
+  bvb: [createBoardInfo, createBotPanel, createBotPanel, createBotPause, createNavArrows],
+  analysis: [createBoardInfo, createBotAnalysis, createNavArrows],
 }
 
 export const mainAffBoard = newAffBoard();
@@ -24,7 +27,17 @@ const moveRequests = new Map();
 function initWorker() {
   worker = new Worker("worker.js", {type: "module"});
   worker.onmessage = function(event) {
-    const {move, requestId, error} = event.data;
+    const { type, depth, eval: moveEval, move, requestId, error } = event.data;
+
+    // Mise à jour de l'affichage en temps réel
+    if (type === "analysisUpdate") {
+      analysisInfo.depth = depth;
+      analysisInfo.eval = moveEval;
+      analysisInfo.move = move;
+      return;
+    }
+
+    // Réception du coup final choisi par le bot
     if (!moveRequests.has(requestId)) return;
     const {resolve, reject} = moveRequests.get(requestId);
     if (error) reject(error);
@@ -192,6 +205,42 @@ function createBotPause(affBoard, mainPanel) {
   mainPanel.appendChild(botPause)
 }
 
+//export const analysisInfo = { depth: 0, move:0, eval:0 }
+function createBotAnalysis(affBoard, mainPanel) {
+  const botName = (!affBoard.bot1.isControlled) ? "bot1" : "bot2";
+  const bot = affBoard[botName];
+  bot.maxTime = Infinity;
+  affBoard.botPause = false;
+  bot.isControlled = true;
+  
+  const panel = document.createElement("div");
+  panel.classList.add('bot-panel')
+  // Bot type 
+  panel.appendChild(createText("Bot type:"));
+  const select = document.createElement("select");
+  panel.appendChild(select);
+  for (const bot in botList) {
+    const option = document.createElement("option");
+    option.textContent = bot;
+    option.value = bot;
+    select.appendChild(option);
+  }
+  select.value = bot.id;
+  select.addEventListener("change", () => {
+    bot.id = select.value;
+    cancelAllBotRequests();
+    nextTurn(affBoard);
+  });
+  const analysisElem = document.createElement("div");
+  panel.appendChild(analysisElem)
+  mainPanel.appendChild(panel);
+  setInterval(() => {
+    analysisElem.textContent = `depth: ${analysisInfo.depth}
+    eval: ${analysisInfo.eval}
+    move: ${analysisInfo.move}`;
+  }, 100)
+}
+
 function updatePanel(affBoard) {
   if (affBoard.panelElem === null) {
     const mainPanel = document.createElement("div");
@@ -255,7 +304,7 @@ function updateInfo(affBoard) {
 }
 
 function manageClick(affBoard, caseIdx) {
-  const isBot = affBoard.isBot();
+  const isBot = affBoard.isBot() && affBoard.mode !== "analysis";
   const caseSelect = affBoard.caseSelect;
   const board = affBoard.board;
   let casesUpdate = [caseIdx];
@@ -270,6 +319,7 @@ function manageClick(affBoard, caseIdx) {
       casesUpdate.push(caseSelect);
       playWithHistory(affBoard, caseSelect, caseIdx);
       affBoard.caseSelect = null;
+      if (affBoard.mode === "analysis") initWorker();
       nextTurn(affBoard);
     } else {
       casesUpdate.push(caseSelect);
@@ -283,7 +333,7 @@ function manageClick(affBoard, caseIdx) {
 export function nextTurn(affBoard) {
   if (isGameOver(affBoard.board)) return;
   if (!affBoard.botPause && affBoard.isBot()) {
-    playBotMove(affBoard)
+    playBotMove(affBoard);
   }
 }
 

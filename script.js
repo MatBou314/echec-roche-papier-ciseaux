@@ -5,7 +5,8 @@ import { botList } from "./allBots.js";
 const modes = {
   jvj: "play in person",
   jvb: "play bot",
-  bvb: "bot VS bot"
+  bvb: "bot VS bot",
+  analysis: "Analysis"
 };
 
 let actualMode = "jvj";
@@ -27,6 +28,11 @@ function changeMode(mode) {
   if (mode === "bvb") {
     mainAffBoard.bot.true = "bot1";
     mainAffBoard.bot.false = "bot2";
+  }
+  if (mode === "analysis") {
+    mainAffBoard.bot.true = "bot1";
+    mainAffBoard.bot.false = "bot1";
+    mainAffBoard.bot1.maxTime = Infinity;
   }
   createMenu()
   changePanel(mainAffBoard);

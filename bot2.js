@@ -694,9 +694,19 @@ let startTime = 0;
 
 function minimaxMemory(depth, evalFunction, alpha = -Infinity, beta = Infinity) {
   if (depth <= 0) {
-    if (memToPiece[movePtr-1] === 0) return evalFunction();
+    if (memToPiece[movePtr-1] === 0) {
+      nodeCount++;
+      if ((nodeCount & 2047) === 0) {
+        if (Date.now() - startTime > timeLimit) throw new Error("Timeout");
+      }
+      return evalFunction();
+    }
   }
   if (isGameOverOpt()) {
+    nodeCount++;
+      if ((nodeCount & 2047) === 0) {
+        if (Date.now() - startTime > timeLimit) throw new Error("Timeout");
+      }
     return winner() ? 9999999 + depth : -9999999 - depth;
   }
   const boardMemory = memory.get(hash)
@@ -708,10 +718,6 @@ function minimaxMemory(depth, evalFunction, alpha = -Infinity, beta = Infinity) 
       if (boardMemory.flag === "UPPER" && boardMemory.eval <= alpha) return boardMemory.eval;
     }
   lastBestMove = boardMemory.move;
-  }
-  nodeCount++;
-  if ((nodeCount & 2047) === 0) {
-    if (Date.now() - startTime > timeLimit) throw new Error("Timeout");
   }
   let flag = "EXACT";
   const originAlpha = alpha;
@@ -866,7 +872,7 @@ function iterativeDeepening(board, maxTime, evalFunction=evaluation) {
   startTime = Date.now()
   let bestMove = null;
   let bestEval = null;
-  let maxDepth = 0;
+  let reachedDepth = 0;
   initState(board);
   memory = new Map();
   movePtr = 0;
@@ -876,7 +882,13 @@ function iterativeDeepening(board, maxTime, evalFunction=evaluation) {
       const [currentEval, currentMove] = getMinimax(depth, evalFunction, bestMove);
       bestEval = currentEval;
       bestMove = currentMove;
-      maxDepth = depth;
+      reachedDepth = depth;
+      postMessage({
+        type: "analysisUpdate",
+        depth: reachedDepth,
+        eval: Math.round(bestEval)/100,
+        move: `${currentMove >> 8} => ${currentMove & 255}`
+      });
       if (Math.abs(bestEval) > 9999999) return [bestEval, bestMove];
       if (depth === 8) console.log(nodeCount, " nodes avant depth 8");
     }
@@ -886,7 +898,7 @@ function iterativeDeepening(board, maxTime, evalFunction=evaluation) {
   totNode += nodeCount;
   computedMoves++;
   console.log(`B ${evalFunction.name} (${board.turn ? "blue" : "red"}):
-  depth: ${maxDepth}
+  depth: ${reachedDepth}
   eval ${bestEval}
   nodeCount: ${nodeCount}
   meanNode: ${totNode/computedMoves}
