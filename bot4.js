@@ -8,7 +8,7 @@ for (let i = 0; i < 128; i++) memMoves[i] = new Uint32Array(72);
 function getMoves(moves) {
   let count = 0;
   if (turn) {
-    for (let i = 0; i < blueRocksCount; i++) {
+    for (let i = 0; i < blueRCount; i++) {
       const from = blueRocks[i];
       const contour = casesContour[from];
       for (let j = 0; j < contour.length; j++) {
@@ -18,7 +18,7 @@ function getMoves(moves) {
       }
     }
 
-    for (let i = 0; i < bluePapersCount; i++) {
+    for (let i = 0; i < bluePCount; i++) {
       const from = bluePapers[i];
       const contour = casesContour[from];
       for (let j = 0; j < contour.length; j++) {
@@ -28,7 +28,7 @@ function getMoves(moves) {
       }
     }
 
-    for (let i = 0; i < blueScissorsCount; i++) {
+    for (let i = 0; i < blueSCount; i++) {
       const from = blueScissors[i];
       const contour = casesContour[from];
       for (let j = 0; j < contour.length; j++) {
@@ -38,7 +38,7 @@ function getMoves(moves) {
       }
     }
   } else {
-    for (let i = 0; i < redRocksCount; i++) {
+    for (let i = 0; i < blueRCount; i++) {
       const from = redRocks[i];
       const contour = casesContour[from];
       for (let j = 0; j < contour.length; j++) {
@@ -48,7 +48,7 @@ function getMoves(moves) {
       }
     }
 
-    for (let i = 0; i < redPapersCount; i++) {
+    for (let i = 0; i < redPCount; i++) {
       const from = redPapers[i];
       const contour = casesContour[from];
       for (let j = 0; j < contour.length; j++) {
@@ -58,7 +58,7 @@ function getMoves(moves) {
       }
     }
 
-    for (let i = 0; i < redScissorsCount; i++) {
+    for (let i = 0; i < redSCount; i++) {
       const from = redScissors[i];
       const contour = casesContour[from];
       for (let j = 0; j < contour.length; j++) {
@@ -75,7 +75,7 @@ function getMovesOrdered(moves, bestMove) {
   let count = 0;
   let score = 0;
   if (turn) {
-    for (let i = 0; i < blueRocksCount; i++) {
+    for (let i = 0; i < blueRCount; i++) {
       const from = blueRocks[i];
       const contour = casesContour[from];
       for (let j = 0; j < contour.length; j++) {
@@ -88,13 +88,13 @@ function getMovesOrdered(moves, bestMove) {
             
         } else if (toPiece === -3) {
           const move = from << 8 | to;
-          score = move === bestMove ? 1024 : 50 - redScissorsCount
+          score = move === bestMove ? 1024 : 50 - redSCount
           moves[count++] = score << 16 | move;
         }
       }
     }
 
-    for (let i = 0; i < bluePapersCount; i++) {
+    for (let i = 0; i < bluePCount; i++) {
       const from = bluePapers[i];
       const contour = casesContour[from];
       for (let j = 0; j < contour.length; j++) {
@@ -106,13 +106,13 @@ function getMovesOrdered(moves, bestMove) {
             moves[count++] = score << 16 | move;  
         } else if (toPiece === -1) {
           const move = from << 8 | to;
-          score = move === bestMove ? 1024 : 50 - redRocksCount
+          score = move === bestMove ? 1024 : 50 - blueRCount
           moves[count++] = score << 16 | move;
         }
       }
     }
 
-    for (let i = 0; i < blueScissorsCount; i++) {
+    for (let i = 0; i < blueSCount; i++) {
       const from = blueScissors[i];
       const contour = casesContour[from];
       for (let j = 0; j < contour.length; j++) {
@@ -125,13 +125,13 @@ function getMovesOrdered(moves, bestMove) {
 
         } else if (toPiece === -2) {
           const move = from << 8 | to;
-          score = move === bestMove ? 1024 : 50 - redPapersCount
+          score = move === bestMove ? 1024 : 50 - redPCount
           moves[count++] = score << 16 | move;
         }
       }
     }
   } else {
-    for (let i = 0; i < redRocksCount; i++) {
+    for (let i = 0; i < blueRCount; i++) {
       const from = redRocks[i];
       const contour = casesContour[from];
       for (let j = 0; j < contour.length; j++) {
@@ -144,13 +144,13 @@ function getMovesOrdered(moves, bestMove) {
 
         } else if (toPiece === 3) {
           const move = from << 8 | to;
-          score = move === bestMove ? 1024 : 50 - blueScissorsCount;
+          score = move === bestMove ? 1024 : 50 - blueSCount;
           moves[count++] = score << 16 | move;
         }
       }
     }
 
-    for (let i = 0; i < redPapersCount; i++) {
+    for (let i = 0; i < redPCount; i++) {
       const from = redPapers[i];
       const contour = casesContour[from];
       for (let j = 0; j < contour.length; j++) {
@@ -163,13 +163,13 @@ function getMovesOrdered(moves, bestMove) {
             
         } else if (toPiece === 1) {
           const move = from << 8 | to;
-          score = move === bestMove ? 1024 : 50 - blueRocksCount;
+          score = move === bestMove ? 1024 : 50 - blueRCount;
           moves[count++] = score << 16 | move;
         }
       }
     }
 
-    for (let i = 0; i < redScissorsCount; i++) {
+    for (let i = 0; i < redSCount; i++) {
       const from = redScissors[i];
       const contour = casesContour[from];
       for (let j = 0; j < contour.length; j++) {
@@ -182,7 +182,7 @@ function getMovesOrdered(moves, bestMove) {
             
         } else if (toPiece === 2) {
           const move = from << 8 | to;
-          score = move === bestMove ? 1024 : 50 - bluePapersCount;
+          score = move === bestMove ? 1024 : 50 - bluePCount;
           moves[count++] = score << 16 | move;
         }
       }
@@ -242,20 +242,20 @@ let blueSquaresCount = 9;
 let redSquaresCount = 9;
 
 const blueRocks = new Uint8Array(3);
-let blueRocksCount = 3;
+let blueRCount = 3;
 const bluePapers = new Uint8Array(3);
-let bluePapersCount = 3;
+let bluePCount = 3;
 const blueScissors = new Uint8Array(3);
-let blueScissorsCount = 3;
+let blueSCount = 3;
 
 let bluePiecesCount = 9;
 
 const redRocks = new Uint8Array(3);
-let redRocksCount = 3;
+let redRCount = 3;
 const redPapers = new Uint8Array(3);
-let redPapersCount = 3;
+let redPCount = 3;
 const redScissors = new Uint8Array(3);
-let redScissorsCount = 3;
+let redSCount = 3;
 
 let redPiecesCount = 9;
 
@@ -272,12 +272,12 @@ function initState(board) {
   redPiecesCount = 0;
   blueSquaresCount = 0;
   redSquaresCount = 0;
-  blueRocksCount = 0;
-  redRocksCount = 0;
-  bluePapersCount = 0;
-  redPapersCount = 0;
-  blueScissorsCount = 0;
-  redScissorsCount = 0;
+  blueRCount = 0;
+  redRCount = 0;
+  bluePCount = 0;
+  redPCount = 0;
+  blueSCount = 0;
+  redSCount = 0;
   blueSquaresValue = 0;
   redSquaresValue = 0;
   for (let i = 0; i < 81; i++) {
@@ -293,15 +293,15 @@ function initState(board) {
     const piece = pieces[i];
     if (piece > 0) {
       bluePiecesCount++;
-      if (piece === 1) blueRocks[blueRocksCount++] = i;
-      else if (piece === 2) bluePapers[bluePapersCount++] = i;
-      else blueScissors[blueScissorsCount++] = i;
+      if (piece === 1) blueRocks[blueRCount++] = i;
+      else if (piece === 2) bluePapers[bluePCount++] = i;
+      else blueScissors[blueSCount++] = i;
     }
     else if (piece < 0) {
       redPiecesCount++;
-      if (piece === -1) redRocks[redRocksCount++] = i;
-      else if (piece === -2) redPapers[redPapersCount++] = i;
-      else redScissors[redScissorsCount++] = i;
+      if (piece === -1) redRocks[redRCount++] = i;
+      else if (piece === -2) redPapers[redPCount++] = i;
+      else redScissors[redSCount++] = i;
     }
   }
   initialHash()
@@ -334,17 +334,17 @@ function playHash(from, to) {
       bluePiecesCount--;
       if (toPiece === 1) {
         const idx = blueRocks.indexOf(to);
-        const lastPieceSquare = blueRocks[--blueRocksCount];
+        const lastPieceSquare = blueRocks[--blueRCount];
         blueRocks[idx] = lastPieceSquare;
       }
       else if (toPiece === 2) {
         const idx = bluePapers.indexOf(to);
-        const lastPieceSquare = bluePapers[--bluePapersCount];
+        const lastPieceSquare = bluePapers[--bluePCount];
         bluePapers[idx] = lastPieceSquare;
       }
       else {
         const idx = blueScissors.indexOf(to);
-        const lastPieceSquare = blueScissors[--blueScissorsCount];
+        const lastPieceSquare = blueScissors[--blueSCount];
         blueScissors[idx] = lastPieceSquare;
       }
   }
@@ -352,17 +352,17 @@ function playHash(from, to) {
       redPiecesCount--;
       if (toPiece === -1) {
         const idx = redRocks.indexOf(to);
-        const lastPieceSquare = redRocks[--redRocksCount];
+        const lastPieceSquare = redRocks[--redRCount];
         redRocks[idx] = lastPieceSquare;
       }
       else if (toPiece === -2) {
         const idx = redPapers.indexOf(to);
-        const lastPieceSquare = redPapers[--redPapersCount];
+        const lastPieceSquare = redPapers[--redPCount];
         redPapers[idx] = lastPieceSquare;
       }
       else {
         const idx = redScissors.indexOf(to);
-        const lastPieceSquare = redScissors[--redScissorsCount];
+        const lastPieceSquare = redScissors[--redSCount];
         redScissors[idx] = lastPieceSquare;
       }
   }
@@ -432,16 +432,16 @@ function UndoHash(from, to) {
 
   if (toPiece > 0) {
     bluePiecesCount++;
-    if (toPiece === 1) blueRocks[blueRocksCount++] = to;
-    else if (toPiece === 2) bluePapers[bluePapersCount++] = to;
-    else blueScissors[blueScissorsCount++] = to;
+    if (toPiece === 1) blueRocks[blueRCount++] = to;
+    else if (toPiece === 2) bluePapers[bluePCount++] = to;
+    else blueScissors[blueSCount++] = to;
 
   }
   else if (toPiece < 0) {
     redPiecesCount++; 
-    if (toPiece === -1) redRocks[redRocksCount++] = to;
-    else if (toPiece === -2) redPapers[redPapersCount++] = to;
-    else redScissors[redScissorsCount++] = to;
+    if (toPiece === -1) redRocks[redRCount++] = to;
+    else if (toPiece === -2) redPapers[redPCount++] = to;
+    else redScissors[redSCount++] = to;
   }
 
   if (fromPiece === 1) {
@@ -527,31 +527,31 @@ function potentialTerritory2() {
    */
     let minBlue = 10;
 
-    for (let j = 0; j < blueRocksCount; j++) {
+    for (let j = 0; j < blueRCount; j++) {
       const pieceDist = DIST_TABLE[81 * i + blueRocks[j]];
       if (pieceDist < minBlue) minBlue = pieceDist;
     }
-    for (let j = 0; j < bluePapersCount; j++) {
+    for (let j = 0; j < bluePCount; j++) {
       const pieceDist = DIST_TABLE[81 * i + bluePapers[j]];
       if (pieceDist < minBlue) minBlue = pieceDist;
     }
-    for (let j = 0; j < blueScissorsCount; j++) {
+    for (let j = 0; j < blueSCount; j++) {
       const pieceDist = DIST_TABLE[81 * i + blueScissors[j]];
       if (pieceDist < minBlue) minBlue = pieceDist;
     }
 
     let minRed = 10;
-    for (let j = 0; j < redRocksCount; j++) {
+    for (let j = 0; j < redRCount; j++) {
       const pieceDist = DIST_TABLE[81 * i + redRocks[j]];
       if (pieceDist < minRed) minRed = pieceDist;
     }
   
-    for (let j = 0; j < redPapersCount; j++) {
+    for (let j = 0; j < redPCount; j++) {
       const pieceDist = DIST_TABLE[81 * i + redPapers[j]];
       if (pieceDist < minRed) minRed = pieceDist;
     }
 
-    for (let j = 0; j < redScissorsCount; j++) {
+    for (let j = 0; j < redSCount; j++) {
       const pieceDist = DIST_TABLE[81 * i + redScissors[j]];
       if (pieceDist < minRed) minRed = pieceDist;
     }
@@ -568,14 +568,14 @@ const flatRed = new Uint8Array(9);
 
 function potentialTerritory() {
   let bCount = 0;
-  for (let j = 0; j < blueRocksCount; j++) flatBlue[bCount++] = blueRocks[j];
-  for (let j = 0; j < bluePapersCount; j++) flatBlue[bCount++] = bluePapers[j];
-  for (let j = 0; j < blueScissorsCount; j++) flatBlue[bCount++] = blueScissors[j];
+  for (let j = 0; j < blueRCount; j++) flatBlue[bCount++] = blueRocks[j];
+  for (let j = 0; j < bluePCount; j++) flatBlue[bCount++] = bluePapers[j];
+  for (let j = 0; j < blueSCount; j++) flatBlue[bCount++] = blueScissors[j];
 
   let rCount = 0;
-  for (let j = 0; j < redRocksCount; j++) flatRed[rCount++] = redRocks[j];
-  for (let j = 0; j < redPapersCount; j++) flatRed[rCount++] = redPapers[j];
-  for (let j = 0; j < redScissorsCount; j++) flatRed[rCount++] = redScissors[j];
+  for (let j = 0; j < redRCount; j++) flatRed[rCount++] = redRocks[j];
+  for (let j = 0; j < redPCount; j++) flatRed[rCount++] = redPapers[j];
+  for (let j = 0; j < redSCount; j++) flatRed[rCount++] = redScissors[j];
 
   let score = 0;
   
@@ -607,18 +607,18 @@ function potentialTerritory() {
 
 
 function imbalance2() {
-  const bluePower = (blueRocksCount * (5 + redScissorsCount - redPapersCount) 
-                    + bluePapersCount * (5 + redRocksCount - redScissorsCount) 
-                    + blueScissorsCount * (5 + redPapersCount - redRocksCount));
+  const bluePower = (blueRCount * (5 + redSCount - redPCount) 
+                    + bluePCount * (5 + redRCount - redSCount) 
+                    + blueSCount * (5 + redPCount - redRCount));
 
-  const redPower = (redRocksCount * (5 + blueScissorsCount - bluePapersCount) 
-                    + redPapersCount * (5 + blueRocksCount - blueScissorsCount) 
-                    + redScissorsCount * (5 + bluePapersCount - blueRocksCount));
+  const redPower = (redRCount * (5 + blueSCount - bluePCount) 
+                    + redPCount * (5 + blueRCount - blueSCount) 
+                    + redSCount * (5 + bluePCount - blueRCount));
   return bluePower - redPower;
 }
 
 function imbalance() {
-  const idx = (blueRocksCount << 10) | (bluePapersCount << 8) | (blueScissorsCount << 6) | (redRocksCount << 4) | (redPapersCount << 2) | redScissorsCount;
+  const idx = (blueRCount << 10) | (bluePCount << 8) | (blueSCount << 6) | (redRCount << 4) | (redPCount << 2) | redSCount;
   return MATERIAL_TABLE[idx];
 }
 
@@ -689,12 +689,12 @@ function piecesProximity(blueAtkFactor=2, redAtkFactor=2) {
   // ================= BLEUS =================
   
   // Blue Rocks
-  for (let i = 0; i < blueRocksCount; i++) {
+  for (let i = 0; i < blueRCount; i++) {
     const sq = blueRocks[i] * 81;
     
-    if (redScissorsCount > 0) {
+    if (redSCount > 0) {
       let minAtk = 10;
-      for (let j = 0; j < redScissorsCount; j++) {
+      for (let j = 0; j < redSCount; j++) {
         const d = DIST_TABLE[sq + redScissors[j]];
         if (d < minAtk) minAtk = d;
       }
@@ -702,9 +702,9 @@ function piecesProximity(blueAtkFactor=2, redAtkFactor=2) {
       blueAtkCount++;
     }
 
-    if (blueScissorsCount > 0) {
+    if (blueSCount > 0) {
       let minDef = 10;
-      for (let j = 0; j < blueScissorsCount; j++) {
+      for (let j = 0; j < blueSCount; j++) {
         const d = DIST_TABLE[sq + blueScissors[j]];
         if (d < minDef) minDef = d;
       }
@@ -714,12 +714,12 @@ function piecesProximity(blueAtkFactor=2, redAtkFactor=2) {
   }
 
   // Blue Papers
-  for (let i = 0; i < bluePapersCount; i++) {
+  for (let i = 0; i < bluePCount; i++) {
     const sq = bluePapers[i] * 81;
 
-    if (redRocksCount > 0) {
+    if (redRCount > 0) {
       let minAtk = 10;
-      for (let j = 0; j < redRocksCount; j++) {
+      for (let j = 0; j < blueRCount; j++) {
         const d = DIST_TABLE[sq + redRocks[j]];
         if (d < minAtk) minAtk = d;
       }
@@ -727,9 +727,9 @@ function piecesProximity(blueAtkFactor=2, redAtkFactor=2) {
       blueAtkCount++;
     }
 
-    if (blueRocksCount > 0) {
+    if (blueRCount > 0) {
       let minDef = 10;
-      for (let j = 0; j < blueRocksCount; j++) {
+      for (let j = 0; j < blueRCount; j++) {
         const d = DIST_TABLE[sq + blueRocks[j]];
         if (d < minDef) minDef = d;
       }
@@ -739,12 +739,12 @@ function piecesProximity(blueAtkFactor=2, redAtkFactor=2) {
   }
 
   // Blue Scissors
-  for (let i = 0; i < blueScissorsCount; i++) {
+  for (let i = 0; i < blueSCount; i++) {
     const sq = blueScissors[i] * 81;
 
-    if (redPapersCount > 0) {
+    if (redPCount > 0) {
       let minAtk = 10;
-      for (let j = 0; j < redPapersCount; j++) {
+      for (let j = 0; j < redPCount; j++) {
         const d = DIST_TABLE[sq + redPapers[j]];
         if (d < minAtk) minAtk = d;
       }
@@ -752,9 +752,9 @@ function piecesProximity(blueAtkFactor=2, redAtkFactor=2) {
       blueAtkCount++;
     }
 
-    if (bluePapersCount > 0) {
+    if (bluePCount > 0) {
       let minDef = 10;
-      for (let j = 0; j < bluePapersCount; j++) {
+      for (let j = 0; j < bluePCount; j++) {
         const d = DIST_TABLE[sq + bluePapers[j]];
         if (d < minDef) minDef = d;
       }
@@ -766,12 +766,12 @@ function piecesProximity(blueAtkFactor=2, redAtkFactor=2) {
   // ================= ROUGES =================
 
   // Red Rocks
-  for (let i = 0; i < redRocksCount; i++) {
+  for (let i = 0; i < redRCount; i++) {
     const sq = redRocks[i] * 81;
 
-    if (blueScissorsCount > 0) {
+    if (blueSCount > 0) {
       let minAtk = 10;
-      for (let j = 0; j < blueScissorsCount; j++) {
+      for (let j = 0; j < blueSCount; j++) {
         const d = DIST_TABLE[sq + blueScissors[j]];
         if (d < minAtk) minAtk = d;
       }
@@ -779,9 +779,9 @@ function piecesProximity(blueAtkFactor=2, redAtkFactor=2) {
       redAtkCount++;
     }
 
-    if (redScissorsCount > 0) {
+    if (redSCount > 0) {
       let minDef = 10;
-      for (let j = 0; j < redScissorsCount; j++) {
+      for (let j = 0; j < redSCount; j++) {
         const d = DIST_TABLE[sq + redScissors[j]];
         if (d < minDef) minDef = d;
       }
@@ -791,12 +791,12 @@ function piecesProximity(blueAtkFactor=2, redAtkFactor=2) {
   }
 
   // Red Papers
-  for (let i = 0; i < redPapersCount; i++) {
+  for (let i = 0; i < redPCount; i++) {
     const sq = redPapers[i] * 81;
 
-    if (blueRocksCount > 0) {
+    if (blueRCount > 0) {
       let minAtk = 10;
-      for (let j = 0; j < blueRocksCount; j++) {
+      for (let j = 0; j < blueRCount; j++) {
         const d = DIST_TABLE[sq + blueRocks[j]];
         if (d < minAtk) minAtk = d;
       }
@@ -804,9 +804,9 @@ function piecesProximity(blueAtkFactor=2, redAtkFactor=2) {
       redAtkCount++;
     }
 
-    if (redRocksCount > 0) {
+    if (redRCount > 0) {
       let minDef = 10;
-      for (let j = 0; j < redRocksCount; j++) {
+      for (let j = 0; j < blueRCount; j++) {
         const d = DIST_TABLE[sq + redRocks[j]];
         if (d < minDef) minDef = d;
       }
@@ -816,12 +816,12 @@ function piecesProximity(blueAtkFactor=2, redAtkFactor=2) {
   }
 
   // Red Scissors
-  for (let i = 0; i < redScissorsCount; i++) {
+  for (let i = 0; i < redSCount; i++) {
     const sq = redScissors[i] * 81;
 
-    if (bluePapersCount > 0) {
+    if (bluePCount > 0) {
       let minAtk = 10;
-      for (let j = 0; j < bluePapersCount; j++) {
+      for (let j = 0; j < bluePCount; j++) {
         const d = DIST_TABLE[sq + bluePapers[j]];
         if (d < minAtk) minAtk = d;
       }
@@ -829,9 +829,9 @@ function piecesProximity(blueAtkFactor=2, redAtkFactor=2) {
       redAtkCount++;
     }
 
-    if (redPapersCount > 0) {
+    if (redPCount > 0) {
       let minDef = 10;
-      for (let j = 0; j < redPapersCount; j++) {
+      for (let j = 0; j < redPCount; j++) {
         const d = DIST_TABLE[sq + redPapers[j]];
         if (d < minDef) minDef = d;
       }
@@ -859,6 +859,9 @@ function evalTotale() {
   return imbalance() * 3 + potentialTerritory() + (blueSquaresValue - redSquaresValue) + piecesProximity(4, 4) * 20;
 }
 
+function evalAgressive() {
+
+} 
 let memory = new Map();
 let nodeCount = 0;
 let timeLimit = 0;
@@ -876,9 +879,9 @@ function minimaxMemory(depth, evalFunction, alpha = -Infinity, beta = Infinity) 
   }
   if (isGameOverOpt()) {
     nodeCount++;
-      if ((nodeCount & 2047) === 0) {
-        if (Date.now() - startTime > timeLimit) throw new Error("Timeout");
-      }
+    if ((nodeCount & 2047) === 0) {
+      if (Date.now() - startTime > timeLimit) throw new Error("Timeout");
+    }
     return winner() ? 9999999 + depth : -9999999 - depth;
   }
   const boardMemory = memory.get(hash)
@@ -1007,6 +1010,7 @@ function getMinimax(depth, evalFunction, lastBestMove, alpha = -Infinity, beta =
       const from = move >> 8;
       const to = move & 255;
       playHash(from, to);
+
       let moveEval;
       if (i === movesCount-1) {
         moveEval = minimaxMemory(depth-1, evalFunction, alpha, beta);
@@ -1016,6 +1020,7 @@ function getMinimax(depth, evalFunction, lastBestMove, alpha = -Infinity, beta =
       if (moveEval > alpha && moveEval < beta) {
           moveEval = minimaxMemory(depth - 1, evalFunction, moveEval, beta);
       }
+
       UndoHash(from, to);
       if (moveEval > bestEval) {
         bestEval = moveEval;
@@ -1070,10 +1075,7 @@ function orderMoves(moves,  bestMove) {
 let totNode = 0;
 let computedMoves = 0;
 
-export let bestMove = null;
-export let bestEval = null;
-export let reachedDepth = 0;
-function iterativeDeepening(board, maxTime, evalFunction = evaluation) {
+function iterativeDeepening(board, maxTime, evalFunction = evalTotale) {
   //console.profile("Iterative");
   timeLimit = maxTime;
   startTime = Date.now();
@@ -1084,7 +1086,6 @@ function iterativeDeepening(board, maxTime, evalFunction = evaluation) {
   memory = new Map();
   movePtr = 0;
   nodeCount = 0;
-  //console.log(imbalance())
   try {
     for (let depth = 2; depth < 2048; depth++) {
       const [currentEval, currentMove] = getMinimax(depth, evalFunction, bestMove);
@@ -1098,7 +1099,7 @@ function iterativeDeepening(board, maxTime, evalFunction = evaluation) {
         move: `${currentMove >> 8} => ${currentMove & 255}`
       });
       if (Math.abs(bestEval) > 9999999) break;
-      if (depth === 8) console.log(nodeCount, " nodes avant depth 8");
+      console.log(depth, nodeCount);
     }
   } catch (error) {
       if (error.message !== "Timeout") throw error;
