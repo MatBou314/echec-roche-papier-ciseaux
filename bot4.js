@@ -38,7 +38,7 @@ function getMoves(moves) {
       }
     }
   } else {
-    for (let i = 0; i < blueRCount; i++) {
+    for (let i = 0; i < redRCount; i++) {
       const from = redRocks[i];
       const contour = casesContour[from];
       for (let j = 0; j < contour.length; j++) {
@@ -131,7 +131,7 @@ function getMovesOrdered(moves, bestMove) {
       }
     }
   } else {
-    for (let i = 0; i < blueRCount; i++) {
+    for (let i = 0; i < redRCount; i++) {
       const from = redRocks[i];
       const contour = casesContour[from];
       for (let j = 0; j < contour.length; j++) {
@@ -719,7 +719,7 @@ function piecesProximity(blueAtkFactor=2, redAtkFactor=2) {
 
     if (redRCount > 0) {
       let minAtk = 10;
-      for (let j = 0; j < blueRCount; j++) {
+      for (let j = 0; j < redRCount; j++) {
         const d = DIST_TABLE[sq + redRocks[j]];
         if (d < minAtk) minAtk = d;
       }
@@ -806,7 +806,7 @@ function piecesProximity(blueAtkFactor=2, redAtkFactor=2) {
 
     if (redRCount > 0) {
       let minDef = 10;
-      for (let j = 0; j < blueRCount; j++) {
+      for (let j = 0; j < redRCount; j++) {
         const d = DIST_TABLE[sq + redRocks[j]];
         if (d < minDef) minDef = d;
       }
@@ -860,7 +860,19 @@ function evalTotale() {
 }
 
 function evalAgressive() {
+  const piecesImbalance = imbalance();
+  if (blueSquaresCount >= 41) {
+    if ((redRCount === 0 && blueSCount > 0) || (redPCount === 0 && blueRCount > 0) || (redSCount === 0 && bluePCount > 0)) return 99999;
+    return piecesImbalance * 3 + piecesProximity(4, 1.5) * 20 + (blueSquaresCount + redSquaresCount) * 5 + potentialTerritory();
+  }
+  if (redSquaresCount >= 41) {
+    if ((blueRCount === 0 && redSCount > 0) || (bluePCount === 0 && redRCount > 0) || (blueSCount === 0 && redPCount > 0)) return -99999;
+    return piecesImbalance * 3 + piecesProximity(1.5, 4) * 20 - (blueSquaresCount + redSquaresCount) * 5 + potentialTerritory();
+  }
 
+  if (piecesImbalance >= 1) return 2000 + piecesImbalance * 3 + piecesProximity(4, 1.5) * 20 - (blueSquaresCount + redSquaresCount);
+  if (piecesImbalance <= -1) return -2000 + piecesImbalance * 3 + piecesProximity(1.5, 4) * 20 + (blueSquaresCount + redSquaresCount);
+  return imbalance() * 3 + potentialTerritory() + (blueSquaresValue - redSquaresValue) + piecesProximity(3, 3) * 20;
 } 
 let memory = new Map();
 let nodeCount = 0;
@@ -1119,6 +1131,11 @@ function iterativeDeepening(board, maxTime, evalFunction = evalTotale) {
 export const botList4 = {
   "Bot D1": (board, maxTime) => {
     const move = iterativeDeepening(board, maxTime, evalTotale)[1];
+    return [move >> 8, move & 255];
+  },
+
+  "Bot D2": (board, maxTime) => {
+    const move = iterativeDeepening(board, maxTime, evalAgressive)[1];
     return [move >> 8, move & 255];
   },
 }
